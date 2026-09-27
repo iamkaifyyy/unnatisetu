@@ -131,63 +131,74 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* 2. Official Emblem Header Banner */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white">
+      {/* 2. Official Emblem & Government Logos Header Banner */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col md:flex-row items-center justify-between gap-4 bg-white border-b border-slate-200">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-14 bg-amber-50 rounded-lg border border-amber-300 flex flex-col items-center justify-center shadow-sm shrink-0">
-            <div className="w-7 h-7 rounded-full bg-[#0a2540] text-amber-400 flex items-center justify-center font-extrabold text-xs shadow-inner">
-              🏛️
-            </div>
-            <span className="text-[8px] font-extrabold text-[#0a2540] uppercase tracking-tighter mt-0.5">
-              सत्यमेव जयते
-            </span>
+          {/* Ashoka Pillar Emblem */}
+          <div className="flex flex-col items-center justify-center shrink-0 border-r border-slate-300 pr-4">
+            <svg width="40" height="52" viewBox="0 0 100 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M50 10 C35 10 30 25 30 35 C30 50 40 60 50 60 C60 60 70 50 70 35 C70 25 65 10 50 10 Z" fill="#0f2e5a"/>
+              <circle cx="50" cy="78" r="14" fill="#0f2e5a" stroke="#d97706" strokeWidth="3"/>
+              <rect x="20" y="98" width="60" height="10" fill="#0f2e5a" rx="2"/>
+              <text x="50" y="122" textAnchor="middle" fill="#0f2e5a" fontSize="11" fontWeight="bold" fontFamily="serif">सत्यमेव जयते</text>
+            </svg>
           </div>
 
           <div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-[#0a2540] tracking-tight leading-none font-serif">
+            <span className="text-xs font-bold text-[#0f2e5a] tracking-wider uppercase block">जनजातीय कार्य मंत्रालय • Ministry of Tribal Affairs</span>
+            <h1 className="text-lg sm:text-2xl font-extrabold text-[#0a2540] tracking-tight leading-tight font-serif">
               {t.portalName}
             </h1>
-            <h2 className="text-xs sm:text-sm font-bold text-slate-700 mt-1">
-              National Fellowship & Scholarship Portal for ST Students (MoTA)
-            </h2>
-            <p className="text-[11px] text-slate-500 font-medium">
-              Smart India Hackathon 2026 Prototype • Ministry of Tribal Affairs, Govt. of India
+            <p className="text-[11px] text-slate-600 font-semibold">
+              Government of India • Direct Benefit Transfer (DBT) Portal • <span className="text-emerald-700 font-bold">dbttribal.gov.in & tribal.nic.in</span>
             </p>
           </div>
         </div>
 
-        {/* SIH Demo Role Switcher */}
-        <div className="flex items-center gap-3 self-end md:self-center">
+        {/* Government Badges & Demo Role Switcher */}
+        <div className="flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-3 border-r border-slate-300 pr-4">
+            <div className="text-center px-2 py-1 bg-amber-50 rounded border border-amber-200">
+              <p className="text-[9px] font-extrabold text-amber-800 uppercase">75 Azadi Ka</p>
+              <p className="text-[10px] font-bold text-[#0f2e5a]">Amrit Mahotsav</p>
+            </div>
+            <div className="text-center px-2 py-1 bg-blue-50 rounded border border-blue-200">
+              <p className="text-[9px] font-extrabold text-blue-900 uppercase">G20 Bharat</p>
+              <p className="text-[10px] font-bold text-[#0f2e5a]">Vasudhaiva Kutumbakam</p>
+            </div>
+          </div>
+
+          {/* SIH Demo Role Switcher */}
           <div className="relative">
             <button
               onClick={() => setIsRoleMenuOpen(!isRoleMenuOpen)}
               disabled={loadingRole}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#0f2e5a] hover:bg-[#1a365d] text-white transition-all text-xs font-semibold shadow border border-slate-700"
+              className="flex items-center gap-2 px-3 py-1.5 rounded bg-[#0f2e5a] hover:bg-[#1a365d] text-white transition-all text-xs font-semibold shadow border border-slate-700"
             >
-              <div className="w-6 h-6 rounded-full bg-amber-500 text-[#0f2e5a] flex items-center justify-center font-bold text-[10px]">
+              <div className="w-5 h-5 rounded-full bg-amber-500 text-[#0f2e5a] flex items-center justify-center font-extrabold text-[10px]">
                 {currentRole.slice(0, 2)}
               </div>
               <div className="text-left">
-                <p className="text-[9px] text-amber-300 font-bold uppercase tracking-wider">{t.demoRoleSwitcher}</p>
-                <p className="font-bold text-white flex items-center gap-1 text-xs">
+                <p className="text-[8px] text-amber-300 font-bold uppercase tracking-wider">{t.demoRoleSwitcher}</p>
+                <p className="font-bold text-white flex items-center gap-1 text-[11px]">
                   {currentRole === 'APPLICANT' && '🎓 ST Applicant'}
                   {currentRole === 'VERIFIER' && '🔍 District Verifier'}
                   {currentRole === 'STATE_ADMIN' && '🏛️ State Nodal Officer'}
                   {currentRole === 'MINISTRY_ADMIN' && '👑 Ministry Super Admin'}
                 </p>
               </div>
-              <ChevronDown className="w-4 h-4 text-amber-400 ml-1" />
+              <ChevronDown className="w-3.5 h-3.5 text-amber-400 ml-0.5" />
             </button>
 
             {isRoleMenuOpen && (
-              <div className="absolute right-0 mt-2 w-72 rounded-xl bg-white border border-slate-300 shadow-2xl p-2 z-50 text-xs">
+              <div className="absolute right-0 mt-2 w-72 rounded-lg bg-white border border-slate-300 shadow-2xl p-2 z-50 text-xs">
                 <div className="px-3 py-2 border-b border-slate-200 text-[11px] font-bold text-[#0f2e5a] uppercase">
                   Select Govt Role for Demo
                 </div>
 
                 <button
                   onClick={() => switchRole('APPLICANT')}
-                  className={`w-full text-left px-3 py-2.5 rounded-lg transition-all flex items-center gap-3 mt-1 ${
+                  className={`w-full text-left px-3 py-2 rounded transition-all flex items-center gap-3 mt-1 ${
                     currentRole === 'APPLICANT'
                       ? 'bg-blue-50 text-[#0f2e5a] font-bold border border-blue-300'
                       : 'text-slate-700 hover:bg-slate-100'
@@ -202,7 +213,7 @@ export default function Navbar() {
 
                 <button
                   onClick={() => switchRole('VERIFIER')}
-                  className={`w-full text-left px-3 py-2.5 rounded-lg transition-all flex items-center gap-3 mt-1 ${
+                  className={`w-full text-left px-3 py-2 rounded transition-all flex items-center gap-3 mt-1 ${
                     currentRole === 'VERIFIER'
                       ? 'bg-blue-50 text-[#0f2e5a] font-bold border border-blue-300'
                       : 'text-slate-700 hover:bg-slate-100'
@@ -217,7 +228,7 @@ export default function Navbar() {
 
                 <button
                   onClick={() => switchRole('STATE_ADMIN')}
-                  className={`w-full text-left px-3 py-2.5 rounded-lg transition-all flex items-center gap-3 mt-1 ${
+                  className={`w-full text-left px-3 py-2 rounded transition-all flex items-center gap-3 mt-1 ${
                     currentRole === 'STATE_ADMIN'
                       ? 'bg-blue-50 text-[#0f2e5a] font-bold border border-blue-300'
                       : 'text-slate-700 hover:bg-slate-100'
@@ -232,7 +243,7 @@ export default function Navbar() {
 
                 <button
                   onClick={() => switchRole('MINISTRY_ADMIN')}
-                  className={`w-full text-left px-3 py-2.5 rounded-lg transition-all flex items-center gap-3 mt-1 ${
+                  className={`w-full text-left px-3 py-2 rounded transition-all flex items-center gap-3 mt-1 ${
                     currentRole === 'MINISTRY_ADMIN'
                       ? 'bg-blue-50 text-[#0f2e5a] font-bold border border-blue-300'
                       : 'text-slate-700 hover:bg-slate-100'
