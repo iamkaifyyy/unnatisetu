@@ -207,50 +207,113 @@ export default function HomePage() {
         <div className="govt-card-header flex items-center justify-between rounded-t-lg">
           <div className="flex items-center gap-2">
             <BookOpen className="w-4 h-4 text-amber-400" />
-            <h2 className="text-sm font-extrabold uppercase tracking-wider">{t.activeSchemes}</h2>
+            <h2 className="text-sm font-extrabold uppercase tracking-wider">{t.activeSchemes} (dbttribal.gov.in & tribal.nic.in)</h2>
           </div>
-          <span className="text-xs text-amber-300 font-bold">{schemes.length} Active Schemes</span>
+          <span className="text-xs text-amber-300 font-bold">5 Active Official MoTA Schemes</span>
         </div>
         <div className="tricolor-ribbon"></div>
 
         {loading ? (
-          <div className="p-8 text-center text-slate-500 font-bold">Loading scheme directory...</div>
+          <div className="p-8 text-center text-slate-500 font-bold">Loading scheme directory from Ministry database...</div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {schemes.map((scheme) => (
-              <div key={scheme.id} className="govt-card p-6 flex flex-col justify-between space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-start justify-between gap-3 border-b border-slate-200 pb-3">
-                    <div>
-                      <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-[#0f2e5a] text-white">
-                        CODE: {scheme.code}
+          <div className="space-y-6">
+            {/* 1. Formal Government Table View (dbttribal.gov.in style) */}
+            <div className="govt-card overflow-x-auto">
+              <div className="p-3 bg-slate-100 border-b border-slate-300 flex items-center justify-between">
+                <span className="text-xs font-extrabold text-[#0f2e5a] uppercase">Official DBT Portal Schemes Directory</span>
+                <span className="text-[10px] text-slate-600 font-bold">Content Managed by Ministry of Tribal Affairs</span>
+              </div>
+              <table className="govt-table">
+                <thead>
+                  <tr>
+                    <th>Sl No.</th>
+                    <th>Official Scheme Name</th>
+                    <th>DBT Code</th>
+                    <th>Benefit Type</th>
+                    <th>Scheme Type</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {schemes.map((scheme, index) => (
+                    <tr key={scheme.id}>
+                      <td className="text-center font-bold">{index + 1}</td>
+                      <td>
+                        <strong className="text-[#0f2e5a]">{scheme.name}</strong>
+                        <p className="text-[10px] text-slate-500">{scheme.description}</p>
+                      </td>
+                      <td className="font-mono font-bold text-blue-900 text-center">{scheme.code}</td>
+                      <td className="text-center">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                          {scheme.code === 'AZKMI' ? 'In Others' : 'In Cash (DBT)'}
+                        </span>
+                      </td>
+                      <td className="text-center font-semibold text-[11px]">
+                        {scheme.code === 'BPVGK' || scheme.code === 'BVOBC' ? 'Centrally Sponsored' : 'Central Sector'}
+                      </td>
+                      <td className="text-center">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                          Active
+                        </span>
+                      </td>
+                      <td className="text-center">
+                        <Link
+                          href={`/applicant/apply/${scheme.id}`}
+                          className="px-3 py-1.5 rounded bg-[#0f2e5a] hover:bg-[#1e40af] text-white font-bold text-[11px] inline-flex items-center gap-1 shadow-sm"
+                        >
+                          {t.applyOnline}
+                          <ArrowRight className="w-3 h-3" />
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* 2. Detailed Scheme Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {schemes.map((scheme) => (
+                <div key={scheme.id} className="govt-card p-6 flex flex-col justify-between space-y-4 border-l-4 border-l-[#0f2e5a]">
+                  <div className="space-y-3">
+                    <div className="flex items-start justify-between gap-3 border-b border-slate-200 pb-3">
+                      <div>
+                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-[#0f2e5a] text-white font-mono">
+                          CODE: {scheme.code}
+                        </span>
+                        <h3 className="text-base font-extrabold text-[#0f2e5a] mt-1">{scheme.name}</h3>
+                      </div>
+                      <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded border border-emerald-300 shrink-0">
+                        AY 2026-27 Open
                       </span>
-                      <h3 className="text-base font-extrabold text-[#0f2e5a] mt-1">{scheme.name}</h3>
                     </div>
-                    <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded border border-emerald-300 shrink-0">
-                      Open For AY 2026
-                    </span>
+
+                    <p className="text-xs text-slate-700 leading-relaxed font-medium">
+                      {scheme.description}
+                    </p>
+
+                    <div className="bg-slate-50 p-3 rounded border border-slate-200 text-xs space-y-1">
+                      <p className="text-[11px] text-slate-700"><strong>Allocation Pool:</strong> ₹{(scheme.budgetAllocation / 10000000).toFixed(1)} Crore</p>
+                      <p className="text-[11px] text-slate-700"><strong>Sanctioned Seats:</strong> {scheme.totalSeats} Seats</p>
+                    </div>
                   </div>
 
-                  <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                    {scheme.description}
-                  </p>
+                  <div className="pt-3 border-t border-slate-200 flex items-center justify-between gap-4">
+                    <span className="text-[11px] text-slate-500 font-medium">
+                      Closing Date: <strong>{new Date(scheme.applicationWindowEnd).toLocaleDateString()}</strong>
+                    </span>
+                    <Link
+                      href={`/applicant/apply/${scheme.id}`}
+                      className="px-4 py-2 rounded bg-[#0f2e5a] hover:bg-[#1a365d] text-white font-bold text-xs transition-all flex items-center gap-1.5 shadow"
+                    >
+                      {t.applyOnline}
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
                 </div>
-
-                <div className="pt-3 border-t border-slate-200 flex items-center justify-between gap-4">
-                  <span className="text-[11px] text-slate-500 font-medium">
-                    Closing Date: <strong>{new Date(scheme.applicationWindowEnd).toLocaleDateString()}</strong>
-                  </span>
-                  <Link
-                    href={`/applicant/apply/${scheme.id}`}
-                    className="px-4 py-2 rounded bg-[#0f2e5a] hover:bg-[#1a365d] text-white font-bold text-xs transition-all flex items-center gap-1.5 shadow"
-                  >
-                    {t.applyOnline}
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
       </section>
