@@ -48,16 +48,57 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Health Check
-app.get('/api/health', (req, res) => {
+// Security Middleware: Prevent Data Leakage in Network Responses
+app.use((req, res, next) => {
+  const originalJson = res.json;
+  res.json = function (data: any) {
+    if (data && typeof data === 'object') {
+      const sanitize = (obj: any): any => {
+        if (Array.isArray(obj)) {
+          return obj.map(sanitize);
+        } else if (obj !== null && typeof obj === 'object') {
+          const cleaned: any = {};
+          for (const [key, val] of Object.entries(obj)) {
+            // Strip password and private token fields from network payloads
+            if (['password', 'hashedPassword', 'rawAadhaarToken', 'internalSecretKey'].includes(key)) {
+              continue;
+            }
+            cleaned[key] = sanitize(val);
+          }
+          return cleaned;
+        }
+        return obj;
+      };
+      data = sanitize(data);
+    }
+    return originalJson.call(this, data);
+  };
+  next();
+});
+
+// Health Check API v1
+app.get(['/api/v1/health', '/api/health'], (req, res) => {
   res.json({
     status: 'HEALTHY',
+    version: 'v1.0.0',
     system: 'Ministry of Tribal Affairs - AI Scholarship & Fellowship Management System',
     timestamp: new Date().toISOString(),
   });
 });
 
-// API Routes
+// Version 1 API Routes (/api/v1/*)
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/schemes', schemeRoutes);
+app.use('/api/v1/applications', applicationRoutes);
+app.use('/api/v1/documents', documentRoutes);
+app.use('/api/v1/verification', verificationRoutes);
+app.use('/api/v1/deficiencies', deficiencyRoutes);
+app.use('/api/v1/merit', meritRoutes);
+app.use('/api/v1/analytics', analyticsRoutes);
+app.use('/api/v1/audit-logs', auditRoutes);
+app.use('/api/v1/notifications', notificationRoutes);
+
+// Legacy API Aliasing for Backward Compatibility
 app.use('/api/auth', authRoutes);
 app.use('/api/schemes', schemeRoutes);
 app.use('/api/applications', applicationRoutes);
@@ -74,6 +115,7 @@ const PORT = process.env.PORT || 5001;
 server.listen(PORT, () => {
   console.log(`=======================================================`);
   console.log(`🚀 MoTA Scholarship Management System Backend Server`);
-  console.log(`📡 Listening on http://localhost:${PORT}`);
+  console.log(`📡 API v1 Endpoint: http://localhost:${PORT}/api/v1`);
+  console.log(`🔒 Network Data Leakage Protection Active`);
   console.log(`=======================================================`);
 });
