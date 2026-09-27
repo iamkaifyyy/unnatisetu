@@ -60,14 +60,14 @@ async function main() {
     },
   });
 
-  console.log('📜 [MoTA Seed] Seeding 5 Official Ministry of Tribal Affairs Schemes (tribal.nic.in & dbttribal.gov.in)...');
+  console.log('📜 [MoTA Seed] Seeding 5 Official Schemes directly from dbttribal.gov.in & tribal.nic.in...');
 
-  // Scheme 1: Pre-Matric Scholarship for ST Students (Classes IX & X)
+  // Scheme 1: Pre-Matric (BPVGK)
   const preMatricScheme = await prisma.scheme.create({
     data: {
-      code: 'PRE_MATRIC',
-      name: 'Pre-Matric Scholarship Scheme for ST Students (Classes IX & X)',
-      description: 'Centrally Sponsored Scheme providing financial support to ST students studying in Classes IX and X to minimize dropout rates and foster secondary education.',
+      code: 'BPVGK',
+      name: 'Pre-Matric Scholarship Scheme For ST Student',
+      description: 'Centrally Sponsored Scheme providing financial support to ST students studying in Classes IX and X to minimize dropout rates and foster secondary education. Benefit Type: In Cash.',
       portalType: 'SCHOLARSHIP',
       applicationWindowStart: new Date('2026-01-01'),
       applicationWindowEnd: new Date('2026-12-31'),
@@ -78,12 +78,12 @@ async function main() {
     },
   });
 
-  // Scheme 2: Post-Matric Scholarship for ST Students (Class XI to Post-Graduation)
+  // Scheme 2: Post-Matric (BVOBC)
   const postMatricScheme = await prisma.scheme.create({
     data: {
-      code: 'POST_MATRIC',
-      name: 'Post-Matric Scholarship Scheme for ST Students (Class XI to PG)',
-      description: 'Centrally Sponsored Scheme to provide financial assistance to ST students studying at post-secondary / post-matriculation stage (Classes XI, XII, UG, PG, Diploma).',
+      code: 'BVOBC',
+      name: 'Post-Matric Scholarship Scheme For ST Students',
+      description: 'Centrally Sponsored Scheme to provide financial assistance to ST students studying at post-secondary / post-matriculation stage (Classes XI, XII, UG, PG, Diploma). Benefit Type: In Cash.',
       portalType: 'SCHOLARSHIP',
       applicationWindowStart: new Date('2026-01-01'),
       applicationWindowEnd: new Date('2026-12-31'),
@@ -94,12 +94,12 @@ async function main() {
     },
   });
 
-  // Scheme 3: National Scholarship for Higher Education (Top Class Education)
+  // Scheme 3: Top Class Education (A023B)
   const topClassScheme = await prisma.scheme.create({
     data: {
-      code: 'TOP_CLASS',
-      name: 'National Scholarship for Higher Education of ST Students (Top Class Education)',
-      description: 'Central Sector Scheme providing full tuition fee reimbursement and living expenses for meritorious ST students admitted to premier notified institutes (IITs, IIMs, NITs, AIIMS, NIFTs, NLUs, etc.).',
+      code: 'A023B',
+      name: 'Top Class Education For ST Students',
+      description: 'Central Sector Scheme providing full tuition fee reimbursement and living expenses for meritorious ST students admitted to premier notified institutes (IITs, IIMs, NITs, AIIMS, NIFTs, NLUs). Benefit Type: In Cash.',
       portalType: 'SCHOLARSHIP',
       applicationWindowStart: new Date('2026-01-10'),
       applicationWindowEnd: new Date('2026-11-30'),
@@ -110,12 +110,12 @@ async function main() {
     },
   });
 
-  // Scheme 4: National Fellowship for Higher Education of ST Students (NFST)
+  // Scheme 4: National Fellowship (ARG45)
   const nfstScheme = await prisma.scheme.create({
     data: {
-      code: 'NFST',
-      name: 'National Fellowship for Higher Education of ST Students (NFST)',
-      description: 'Central Sector Scheme providing financial assistance/fellowship to Scheduled Tribe students for pursuing M.Phil / Ph.D in Humanities, Sciences, and Engineering at premier Indian Universities.',
+      code: 'ARG45',
+      name: 'National Fellowship for ST Students',
+      description: 'Central Sector Scheme providing financial assistance/fellowship to Scheduled Tribe students for pursuing M.Phil / Ph.D in Humanities, Sciences, and Engineering at premier Indian Universities. Benefit Type: In Cash.',
       portalType: 'FELLOWSHIP',
       applicationWindowStart: new Date('2026-01-01'),
       applicationWindowEnd: new Date('2026-12-31'),
@@ -126,12 +126,12 @@ async function main() {
     },
   });
 
-  // Scheme 5: National Overseas Scholarship for ST Students (NOS)
+  // Scheme 5: National Overseas Scholarship Scheme (AZKMI)
   const nosScheme = await prisma.scheme.create({
     data: {
-      code: 'NOS',
-      name: 'National Overseas Scholarship for ST Students (NOS)',
-      description: 'Central Sector Scheme providing financial support for selected ST students pursuing Master Degree, Ph.D, and Post-Doctoral research in top 500 foreign universities abroad.',
+      code: 'AZKMI',
+      name: 'National Overseas Scholarship Scheme',
+      description: 'Central Sector Scheme providing financial support for selected ST students pursuing Master Degree, Ph.D, and Post-Doctoral research in top 500 foreign universities abroad. Benefit Type: In Others.',
       portalType: 'SCHOLARSHIP',
       applicationWindowStart: new Date('2026-01-15'),
       applicationWindowEnd: new Date('2026-11-30'),
