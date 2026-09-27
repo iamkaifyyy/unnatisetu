@@ -1,4 +1,11 @@
-import express from 'express';
+/**
+ * National Fellowship & Scholarship Management System
+ * Ministry of Tribal Affairs (MoTA), Government of India
+ *
+ * Core Express API Service & Realtime Event Dispatcher
+ */
+
+import express, { Request, Response, NextFunction } from 'express';
 import http from 'http';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -20,17 +27,15 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 
-// Socket.io Setup for Realtime Queue updates & Applicant status pushes
+// WebSocket event channel for real-time scrutiny updates and applicant notifications
 const io = new Server(server, {
   cors: {
-    origin: '*',
+    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
     methods: ['GET', 'POST'],
   },
 });
 
 io.on('connection', (socket) => {
-  console.log(`⚡ [Socket.io] Client connected: ${socket.id}`);
-
   socket.on('join_application', (applicationId: string) => {
     socket.join(`app_${applicationId}`);
   });
@@ -38,18 +43,17 @@ io.on('connection', (socket) => {
   socket.on('join_verifier_queue', () => {
     socket.join('verifier_queue');
   });
-
-  socket.on('disconnect', () => {
-    console.log(`⚡ [Socket.io] Client disconnected: ${socket.id}`);
-  });
 });
 
-app.use(cors());
+app.use(cors({ origin: process.env.CORS_ORIGIN || '*' }));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Security Middleware: Prevent Data Leakage in Network Responses
-app.use((req, res, next) => {
+/**
+ * Data Leakage Protection Middleware
+ * Intercepts outbound JSON responses and strips sensitive authentication tokens or credentials
+ */
+app.use((req: Request, res: Response, next: NextFunction) => {
   const originalJson = res.json;
   res.json = function (data: any) {
     if (data && typeof data === 'object') {
@@ -59,7 +63,6 @@ app.use((req, res, next) => {
         } else if (obj !== null && typeof obj === 'object') {
           const cleaned: any = {};
           for (const [key, val] of Object.entries(obj)) {
-            // Strip password and private token fields from network payloads
             if (['password', 'hashedPassword', 'rawAadhaarToken', 'internalSecretKey'].includes(key)) {
               continue;
             }
@@ -76,17 +79,17 @@ app.use((req, res, next) => {
   next();
 });
 
-// Health Check API v1
-app.get(['/api/v1/health', '/api/health'], (req, res) => {
+// System Health Check
+app.get(['/api/v1/health', '/api/health'], (_req: Request, res: Response) => {
   res.json({
-    status: 'HEALTHY',
-    version: 'v1.0.0',
-    system: 'Ministry of Tribal Affairs - AI Scholarship & Fellowship Management System',
+    status: 'UP',
+    apiVersion: 'v1.0.0',
+    service: 'Ministry of Tribal Affairs - Single Window Scholarship Portal',
     timestamp: new Date().toISOString(),
   });
 });
 
-// Version 1 API Routes (/api/v1/*)
+// API Routes (v1)
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/schemes', schemeRoutes);
 app.use('/api/v1/applications', applicationRoutes);
@@ -98,7 +101,7 @@ app.use('/api/v1/analytics', analyticsRoutes);
 app.use('/api/v1/audit-logs', auditRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
 
-// Legacy API Aliasing for Backward Compatibility
+// Legacy route compatibility mapping
 app.use('/api/auth', authRoutes);
 app.use('/api/schemes', schemeRoutes);
 app.use('/api/applications', applicationRoutes);
@@ -113,9 +116,7 @@ app.use('/api/notifications', notificationRoutes);
 const PORT = process.env.PORT || 5001;
 
 server.listen(PORT, () => {
-  console.log(`=======================================================`);
-  console.log(`🚀 MoTA Scholarship Management System Backend Server`);
-  console.log(`📡 API v1 Endpoint: http://localhost:${PORT}/api/v1`);
-  console.log(`🔒 Network Data Leakage Protection Active`);
-  console.log(`=======================================================`);
+  console.log(`[MoTA Portal Service] Server initialized on port ${PORT}`);
+  console.log(`[MoTA Portal Service] API Base URL: http://localhost:${PORT}/api/v1`);
 });
+
