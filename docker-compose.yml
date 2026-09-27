@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5001"
+    environment:
+      - PORT=5001
+      - DATABASE_URL=file:./dev.db
+      - JWT_SECRET=sih_2026_mota_tribal_affairs_secret_key_jwt_super_secure
+    volumes:
+      - ./backend/prisma:/app/prisma
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:5001/api
+    depends_on:
+      - backend

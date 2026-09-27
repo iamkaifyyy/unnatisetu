@@ -1,0 +1,131 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Hind:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --font-hind: 'Hind', 'Inter', sans-serif;
+  --goi-navy: #0a2540;
+  --goi-blue: #1a4971;
+  --goi-saffron: #ff9933;
+  --goi-white: #ffffff;
+  --goi-green: #138808;
+  --goi-gold: #d97706;
+}
+
+body {
+  font-family: var(--font-hind);
+  background-color: #f4f7fb;
+  color: #1e293b;
+  overflow-x: hidden;
+}
+
+/* Indian Tricolor Theme Accents */
+.tricolor-ribbon {
+  background: linear-gradient(90deg, #ff9933 0%, #ff9933 33.3%, #ffffff 33.3%, #ffffff 66.6%, #138808 66.6%, #138808 100%);
+  height: 4px;
+  width: 100%;
+}
+
+.tricolor-[#FF9933] {
+  color: #ff9933;
+}
+
+.tricolor-green {
+  color: #138808;
+}
+
+.tricolor-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 24px 0;
+  position: relative;
+}
+
+.tricolor-divider::before {
+  content: '';
+  height: 3px;
+  width: 100%;
+  background: linear-gradient(90deg, #ff9933 0%, #ffffff 50%, #138808 100%);
+  border-radius: 2px;
+}
+
+.tricolor-badge {
+  border-left: 4px solid #ff9933;
+  background: linear-gradient(90deg, rgba(255, 153, 51, 0.08) 0%, rgba(255, 255, 255, 0.9) 50%, rgba(19, 136, 8, 0.08) 100%);
+}
+
+.tricolor-[#0f2e5a] {
+  background: #0f2e5a;
+  color: #ffffff;
+}
+
+/* Official Government Card Styling */
+.govt-card {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+}
+
+.govt-card-header {
+  background: linear-gradient(90deg, #0f2e5a 0%, #1e40af 100%);
+  color: #ffffff;
+  padding: 12px 18px;
+  border-top-left-radius: 7px;
+  border-top-right-radius: 7px;
+}
+
+.govt-header-accent {
+  background: linear-gradient(90deg, #ff9933 0%, #ffffff 50%, #138808 100%);
+  height: 4px;
+}
+
+/* Official Government Table */
+.govt-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+}
+
+.govt-table th {
+  background-color: #0f2e5a;
+  color: #ffffff;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  padding: 10px 14px;
+  border: 1px solid #1e3a8a;
+}
+
+.govt-table td {
+  padding: 10px 14px;
+  border: 1px solid #e2e8f0;
+  font-size: 12px;
+  color: #334155;
+}
+
+.govt-table tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+.govt-table tr:hover {
+  background-color: #f1f5f9;
+}
+
+/* Ticker Animation */
+@keyframes ticker {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+.animate-ticker {
+  animation: ticker 30s linear infinite;
+}
+
+.animate-ticker:hover {
+  animation-play-state: paused;
+}

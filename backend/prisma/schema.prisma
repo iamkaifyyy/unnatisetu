@@ -1,0 +1,181 @@
+// Prisma Schema for MoTA AI-Enabled Scholarship & Fellowship Management System (SQLite Compatible)
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id               String   @id @default(uuid())
+  email            String   @unique
+  password         String
+  fullName         String
+  role             String   @default("APPLICANT") // APPLICANT, VERIFIER, STATE_ADMIN, MINISTRY_ADMIN
+  phone            String?
+  state            String?
+  district         String?
+  category         String   @default("ST")
+  pvtgGroup        String?  // Particular Vulnerable Tribal Group flag/name if applicable
+  aadhaarNumber    String?  // Masked or hashed
+  digilockerId     String?
+  profileComplete  Int      @default(80)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  applications     Application[]
+  verificationLogs AuditLog[]        @relation("ActorLogs")
+  assignedApps     Application[]     @relation("AssigneeApps")
+  deficiencies     DeficiencyNotice[] @relation("RaisedDeficiencies")
+  notifications    Notification[]
+  meritOverrides   MeritEntry[]      @relation("OverriddenBy")
+}
+
+model Scheme {
+  id                     String         @id @default(uuid())
+  code                   String         @unique // e.g. "NFST", "NOS"
+  name                   String
+  description            String
+  portalType             String         @default("FELLOWSHIP") // SCHOLARSHIP or FELLOWSHIP
+  applicationWindowStart DateTime
+  applicationWindowEnd   DateTime
+  isActive               Boolean        @default(true)
+  budgetAllocation       Float          @default(50000000) // Rs in INR
+  budgetUtilized         Float          @default(18500000)
+  totalSeats             Int            @default(750)
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
+
+  configs                SchemeConfig[]
+  applications           Application[]
+  meritEntries           MeritEntry[]
+}
+
+model SchemeConfig {
+  id                    String   @id @default(uuid())
+  schemeId              String
+  scheme                Scheme   @relation(fields: [schemeId], references: [id], onDelete: Cascade)
+  version               Int      @default(1)
+  effectiveFrom         DateTime @default(now())
+  isActive              Boolean  @default(true)
+
+  // JSON stored strings
+  eligibilityRulesJson  String   // JSON array of rules
+  requiredDocumentsJson String   // JSON array of document definitions
+  scoringWeightageJson  String   // JSON object
+  tieBreakerRulesJson   String   // JSON array
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+model Application {
+  id                  String            @id @default(uuid())
+  applicationNo       String            @unique
+  userId              String
+  user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  schemeId            String
+  scheme              Scheme            @relation(fields: [schemeId], references: [id], onDelete: Cascade)
+  schemeConfigVersion Int               @default(1)
+
+  status              String            @default("DRAFT") // DRAFT, SUBMITTED, UNDER_SCRUTINY, DEFICIENCY_RAISED, RESUBMITTED, SHORTLISTED, SELECTED, REJECTED, WAITLISTED
+  riskLevel           String            @default("LOW")   // LOW, MEDIUM, HIGH
+  aiConfidenceScore   Float             @default(92.5)   // 0-100%
+
+  formDataJson        String            // JSON payload containing form fields
+  submittedAt         DateTime?
+  currentAssigneeId   String?
+  currentAssignee     User?             @relation("AssigneeApps", fields: [currentAssigneeId], references: [id])
+
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  documents           Document[]
+  auditLogs           AuditLog[]
+  deficiencies        DeficiencyNotice[]
+  meritEntry          MeritEntry?
+}
+
+model Document {
+  id                 String   @id @default(uuid())
+  applicationId     String
+  application       Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  type               String   // CASTE_CERT, INCOME_CERT, MARK_SHEET, ADMISSION_LETTER, PASSPORT
+  fileUrl            String
+  fileName           String
+  mimeType           String   @default("image/png")
+  fileSize           Int      @default(245000)
+
+  ocrExtractedJson   String   // Extracted fields JSON
+  ocrConfidenceScore Float    @default(88.0)
+  verificationStatus String   @default("PENDING") // PENDING, VERIFIED, FLAGGED, REJECTED
+  mismatchFlagsJson  String   @default("[]")      // Array of detected mismatches
+
+  uploadedAt         DateTime @default(now())
+}
+
+model AuditLog {
+  id            String      @id @default(uuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  actorId       String
+  actor         User        @relation("ActorLogs", fields: [actorId], references: [id])
+  actorRole     String      // APPLICANT, VERIFIER, STATE_ADMIN, MINISTRY_ADMIN
+  action        String      // e.g., "SUBMITTED", "APPROVED", "RAISED_DEFICIENCY", "OVERRODE_RANK"
+  reason        String?
+  previousState String?
+  newState      String?
+  metadataJson  String?
+  timestamp     DateTime    @default(now())
+}
+
+model DeficiencyNotice {
+  id            String      @id @default(uuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  raisedById    String
+  raisedBy      User        @relation("RaisedDeficiencies", fields: [raisedById], references: [id])
+  reason        String
+  category      String      @default("DOCUMENT_MISMATCH") // DOCUMENT_MISMATCH, BLURRY_FILE, EXPIRED_CERT, INCOMPLETE_FORM
+  remarks       String?
+  deadline      DateTime
+  status        String      @default("OPEN") // OPEN, RESOLVED, EXPIRED
+  resolvedAt    DateTime?
+  createdAt     DateTime    @default(now())
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   // DEFICIENCY_RAISED, STATUS_UPDATE, MERIT_SELECTION
+  title     String
+  message   String
+  channel   String   @default("IN_APP") // IN_APP, EMAIL, SMS
+  isRead    Boolean  @default(false)
+  sentAt    DateTime @default(now())
+}
+
+model MeritEntry {
+  id               String      @id @default(uuid())
+  applicationId   String      @unique
+  application     Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  schemeId         String
+  scheme           Scheme      @relation(fields: [schemeId], references: [id], onDelete: Cascade)
+
+  computedScore    Float       // Score calculated by formula
+  scoreBreakdownJson String    // JSON breakdown per component
+  rank             Int
+  category         String      @default("ST")
+  state            String
+  isOverridden     Boolean     @default(false)
+  overrideReason   String?
+  overriddenById   String?
+  overriddenBy     User?       @relation("OverriddenBy", fields: [overriddenById], references: [id])
+  publishedAt      DateTime?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+}
