@@ -96,9 +96,9 @@ const defaultTranslations: Record<string, TranslationDictionary> = {
   en: {
     govtTitle: 'GOVERNMENT OF INDIA',
     motaTitle: 'MINISTRY OF TRIBAL AFFAIRS',
-    portalName: 'National Fellowship & Scholarship Portal for ST Students',
+    portalName: 'Unified One-Nation Scholarship & Fellowship Portal for ST Students',
     applicantPortal: 'Applicant Portal',
-    schemeDirectory: 'Scheme Directory',
+    schemeDirectory: 'Unified Scheme Directory',
     verificationQueue: 'Verification Queue',
     schemeConfigEngine: 'Scheme Config Engine',
     meritSelection: 'Merit & Selection',
@@ -107,7 +107,7 @@ const defaultTranslations: Record<string, TranslationDictionary> = {
     voiceAssist: 'Voice Assist',
     selectLanguage: 'Select Language',
     demoRoleSwitcher: 'SIH Demo Persona Switcher',
-    announcement: 'Verification of ST Fellowship Applications (AY 2026-27) is active • Multi-language Vernacular Assistance enabled • 7 Days SLA active.',
+    announcement: 'Verification of ST Fellowship & Scholarship Applications (AY 2026-27) is active • Multi-language Vernacular Assistance enabled • 7 Days SLA active.',
 
     applyOnline: 'Apply Online',
     trackStatus: 'Track Status',
@@ -122,8 +122,8 @@ const defaultTranslations: Record<string, TranslationDictionary> = {
     shortlisted: 'Shortlisted for Merit',
     selectedAward: 'Provisional Award Sanctioned',
 
-    heroTitle: 'AI-Enabled Scheme-Agnostic Fellowship Management System',
-    heroSubtitle: 'Official centralized portal for Scheduled Tribe students applying for M.Phil, Ph.D and Overseas Scholarships (NFST & NOS).',
+    heroTitle: 'Unified Single-Window Tribal Scholarship & Fellowship Platform',
+    heroSubtitle: 'Eliminating portal fragmentation by bringing Pre-Matric, Post-Matric, Top Class Education, NFST, and Overseas (NOS) schemes into ONE unified AI-powered platform with single-sign-on and automated cross-scheme verification.',
     applicantLogin: 'Applicant Student Login / Register',
     officerPortal: 'Officer Scrutiny Portal',
     sanctionedPool: 'Sanctioned Pool',

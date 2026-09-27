@@ -164,6 +164,45 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* Unified Single-Window Innovation Highlight */}
+      <section className="govt-card p-6 bg-gradient-to-r from-[#0f2e5a] to-[#1a365d] text-white space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-700/60 pb-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-amber-400" />
+            <h2 className="text-sm sm:text-base font-extrabold uppercase tracking-wide text-amber-300">
+              Why UnnatiSetu? Eliminating Portal Fragmentation
+            </h2>
+          </div>
+          <span className="text-[10px] bg-amber-500/20 text-amber-300 font-extrabold px-3 py-1 rounded border border-amber-400/30">
+            One-Nation One-Tribal-Portal Initiative
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          {/* Legacy Fragmented Problem */}
+          <div className="bg-slate-900/60 p-4 rounded border border-rose-500/30 space-y-2">
+            <div className="flex items-center gap-2 text-rose-400 font-bold uppercase text-[11px]">
+              <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+              <span>The Problem: Legacy Fragmented Portals</span>
+            </div>
+            <p className="text-slate-300 leading-relaxed text-[11px]">
+              Previously, ST students had to navigate 5 separate portals (<code className="text-rose-300">tribal.nic.in</code>, <code className="text-rose-300">dbttribal.gov.in</code>, NSP 2.0, State portals, and Overseas portal), requiring multiple logins, re-uploading documents, and facing high rejection rates due to formatting errors.
+            </p>
+          </div>
+
+          {/* UnnatiSetu Unified Solution */}
+          <div className="bg-slate-900/60 p-4 rounded border border-emerald-500/40 space-y-2">
+            <div className="flex items-center gap-2 text-emerald-400 font-bold uppercase text-[11px]">
+              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span>The Solution: UnnatiSetu Single Window</span>
+            </div>
+            <p className="text-slate-300 leading-relaxed text-[11px]">
+              UnnatiSetu unifies <strong>all 5 MoTA Schemes</strong> (Pre-Matric, Post-Matric, Top Class, NFST, NOS) into <strong>ONE single window</strong>. One DigiLocker login auto-evaluates eligibility across all schemes, eliminates duplicate applications, and speeds up scrutiny from months to 7 days.
+            </p>
+          </div>
+        </div>
+      </section>
+
       <section id="schemes" className="space-y-4">
         <div className="govt-card-header flex items-center justify-between rounded-t-lg">
           <div className="flex items-center gap-2">
