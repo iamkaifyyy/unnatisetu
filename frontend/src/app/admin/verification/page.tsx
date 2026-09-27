@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { api } from '../../../lib/api';
 import { Application } from '../../../types';
 import { useLanguage } from '../../../context/LanguageContext';
+import ProtectedRoute from '../../../components/ProtectedRoute';
 import {
   ShieldCheck,
   Filter,
@@ -137,154 +138,156 @@ export default function VerificationQueuePage() {
   };
 
   return (
-    <div className="space-y-6 py-2">
-      {/* Top Banner */}
-      <div className="govt-card overflow-hidden">
-        <div className="govt-card-header flex items-center justify-between">
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider">
-            <ShieldCheck className="w-4 h-4 text-amber-400" />
-            <span>{t.verificationQueue} • District & State Authorities</span>
+    <ProtectedRoute allowedRoles={['VERIFIER', 'STATE_ADMIN', 'MINISTRY_ADMIN']}>
+      <div className="space-y-6 py-2">
+        {/* Top Banner */}
+        <div className="govt-card overflow-hidden">
+          <div className="govt-card-header flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider">
+              <ShieldCheck className="w-4 h-4 text-amber-400" />
+              <span>{t.verificationQueue} • District & State Authorities</span>
+            </div>
+            {selectedIds.length > 0 && (
+              <button
+                onClick={handleBulkApprove}
+                className="px-3 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1 shadow"
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                {t.bulkApprove} ({selectedIds.length})
+              </button>
+            )}
           </div>
-          {selectedIds.length > 0 && (
-            <button
-              onClick={handleBulkApprove}
-              className="px-3 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1 shadow"
-            >
-              <CheckCircle2 className="w-4 h-4" />
-              {t.bulkApprove} ({selectedIds.length})
-            </button>
-          )}
-        </div>
-        <div className="tricolor-ribbon"></div>
+          <div className="tricolor-ribbon"></div>
 
-        <div className="p-4 bg-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-xl font-extrabold text-[#0a2540]">{t.scrutinyQueueTitle}</h1>
-            <p className="text-xs text-slate-600">
-              Scrutinize ST fellowship applications, inspect OCR field mismatches, and issue official deficiency notices.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Filter Bar */}
-      <div className="govt-card p-4 flex flex-wrap items-center justify-between gap-4 text-xs bg-slate-50">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-slate-500" />
-            <span className="font-bold text-[#0f2e5a]">{t.riskLevel}:</span>
-            <select
-              value={riskFilter}
-              onChange={(e) => setRiskFilter(e.target.value)}
-              className="px-3 py-1.5 rounded bg-white border border-slate-300 text-slate-800 outline-none font-medium"
-            >
-              <option value="">All Risk Levels</option>
-              <option value="HIGH">High Risk (CRITICAL Mismatch)</option>
-              <option value="MEDIUM">Medium Risk</option>
-              <option value="LOW">Low Risk (High Confidence)</option>
-            </select>
+          <div className="p-4 bg-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-xl font-extrabold text-[#0a2540]">{t.scrutinyQueueTitle}</h1>
+              <p className="text-xs text-slate-600">
+                Scrutinize ST fellowship applications, inspect OCR field mismatches, and issue official deficiency notices.
+              </p>
+            </div>
           </div>
         </div>
 
-        <div className="relative w-full sm:w-64">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-          <input
-            type="text"
-            placeholder="Search App No or Name..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && fetchQueue()}
-            className="w-full pl-9 pr-3 py-1.5 rounded bg-white border border-slate-300 text-slate-800 outline-none text-xs"
-          />
-        </div>
-      </div>
+        {/* Filter Bar */}
+        <div className="govt-card p-4 flex flex-wrap items-center justify-between gap-4 text-xs bg-slate-50">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Filter className="w-4 h-4 text-slate-500" />
+              <span className="font-bold text-[#0f2e5a]">{t.riskLevel}:</span>
+              <select
+                value={riskFilter}
+                onChange={(e) => setRiskFilter(e.target.value)}
+                className="px-3 py-1.5 rounded bg-white border border-slate-300 text-slate-800 outline-none font-medium"
+              >
+                <option value="">All Risk Levels</option>
+                <option value="HIGH">High Risk (CRITICAL Mismatch)</option>
+                <option value="MEDIUM">Medium Risk</option>
+                <option value="LOW">Low Risk (High Confidence)</option>
+              </select>
+            </div>
+          </div>
 
-      {/* Table */}
-      <div className="govt-card overflow-hidden">
-        {loading ? (
-          <div className="p-8 text-center text-slate-500 font-bold">Loading scrutiny queue...</div>
-        ) : queue.length === 0 ? (
-          <div className="p-8 text-center text-slate-600 font-bold">Queue clean! No pending applications.</div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="govt-table">
-              <thead>
-                <tr>
-                  <th className="w-10 text-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.length === queue.length}
-                      onChange={toggleSelectAll}
-                      className="rounded"
-                    />
-                  </th>
-                  <th>{t.appNo}</th>
-                  <th>{t.candidateName}</th>
-                  <th>State & Tribe</th>
-                  <th>{t.ocrScore}</th>
-                  <th>{t.riskLevel}</th>
-                  <th>Status</th>
-                  <th className="text-right">{t.action}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {queue.map((app) => (
-                  <tr key={app.id}>
-                    <td className="text-center">
+          <div className="relative w-full sm:w-64">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+            <input
+              type="text"
+              placeholder="Search App No or Name..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && fetchQueue()}
+              className="w-full pl-9 pr-3 py-1.5 rounded bg-white border border-slate-300 text-slate-800 outline-none text-xs"
+            />
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="govt-card overflow-hidden">
+          {loading ? (
+            <div className="p-8 text-center text-slate-500 font-bold">Loading scrutiny queue...</div>
+          ) : queue.length === 0 ? (
+            <div className="p-8 text-center text-slate-600 font-bold">Queue clean! No pending applications.</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="govt-table">
+                <thead>
+                  <tr>
+                    <th className="w-10 text-center">
                       <input
                         type="checkbox"
-                        checked={selectedIds.includes(app.id)}
-                        onChange={() => {
-                          setSelectedIds((prev) =>
-                            prev.includes(app.id) ? prev.filter((i) => i !== app.id) : [...prev, app.id]
-                          );
-                        }}
+                        checked={selectedIds.length === queue.length}
+                        onChange={toggleSelectAll}
                         className="rounded"
                       />
-                    </td>
-                    <td className="font-extrabold text-[#0f2e5a]">{app.applicationNo}</td>
-                    <td className="font-bold text-slate-800">{app.user?.fullName}</td>
-                    <td>
-                      {app.user?.state || 'Jharkhand'} • <span className="text-slate-600">{app.formData?.tribeName || 'ST'}</span>
-                    </td>
-                    <td className="font-extrabold text-emerald-700">{app.aiConfidenceScore}%</td>
-                    <td>
-                      {app.riskLevel === 'HIGH' && (
-                        <span className="px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-bold border border-rose-300">
-                          HIGH RISK
-                        </span>
-                      )}
-                      {app.riskLevel === 'MEDIUM' && (
-                        <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-900 font-bold border border-amber-300">
-                          MEDIUM
-                        </span>
-                      )}
-                      {app.riskLevel === 'LOW' && (
-                        <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-900 font-bold border border-emerald-300">
-                          LOW RISK
-                        </span>
-                      )}
-                    </td>
-                    <td>
-                      <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-100 text-slate-800 border border-slate-300">
-                        {app.status}
-                      </span>
-                    </td>
-                    <td className="text-right">
-                      <button
-                        onClick={() => openInspection(app)}
-                        className="px-3 py-1 rounded bg-[#0f2e5a] hover:bg-[#1a365d] text-white font-bold text-xs flex items-center gap-1 ml-auto shadow"
-                      >
-                        <Eye className="w-3.5 h-3.5" /> {t.inspectDiff}
-                      </button>
-                    </td>
+                    </th>
+                    <th>{t.appNo}</th>
+                    <th>{t.candidateName}</th>
+                    <th>State & Tribe</th>
+                    <th>{t.ocrScore}</th>
+                    <th>{t.riskLevel}</th>
+                    <th>Status</th>
+                    <th className="text-right">{t.action}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                </thead>
+                <tbody>
+                  {queue.map((app) => (
+                    <tr key={app.id}>
+                      <td className="text-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(app.id)}
+                          onChange={() => {
+                            setSelectedIds((prev) =>
+                              prev.includes(app.id) ? prev.filter((i) => i !== app.id) : [...prev, app.id]
+                            );
+                          }}
+                          className="rounded"
+                        />
+                      </td>
+                      <td className="font-extrabold text-[#0f2e5a]">{app.applicationNo}</td>
+                      <td className="font-bold text-slate-800">{app.user?.fullName}</td>
+                      <td>
+                        {app.user?.state || 'Jharkhand'} • <span className="text-slate-600">{app.formData?.tribeName || 'ST'}</span>
+                      </td>
+                      <td className="font-extrabold text-emerald-700">{app.aiConfidenceScore}%</td>
+                      <td>
+                        {app.riskLevel === 'HIGH' && (
+                          <span className="px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-bold border border-rose-300">
+                            HIGH RISK
+                          </span>
+                        )}
+                        {app.riskLevel === 'MEDIUM' && (
+                          <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-900 font-bold border border-amber-300">
+                            MEDIUM
+                          </span>
+                        )}
+                        {app.riskLevel === 'LOW' && (
+                          <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-900 font-bold border border-emerald-300">
+                            LOW RISK
+                          </span>
+                        )}
+                      </td>
+                      <td>
+                        <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-100 text-slate-800 border border-slate-300">
+                          {app.status}
+                        </span>
+                      </td>
+                      <td className="text-right">
+                        <button
+                          onClick={() => openInspection(app)}
+                          className="px-3 py-1 rounded bg-[#0f2e5a] hover:bg-[#1a365d] text-white font-bold text-xs flex items-center gap-1 ml-auto shadow"
+                        >
+                          <Eye className="w-3.5 h-3.5" /> {t.inspectDiff}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }

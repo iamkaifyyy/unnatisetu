@@ -19,6 +19,8 @@ import {
   FileSpreadsheet,
 } from 'lucide-react';
 
+import ProtectedRoute from '../../../components/ProtectedRoute';
+
 export default function ApplicantDashboard() {
   const { t } = useLanguage();
   const [applications, setApplications] = useState<Application[]>([]);
@@ -67,135 +69,137 @@ export default function ApplicantDashboard() {
   const hasDeficiency = applications.some((a) => a.status === 'DEFICIENCY_RAISED');
 
   return (
-    <div className="space-y-6 py-2">
-      {/* Student Identity Card */}
-      <div className="govt-card bg-white border-slate-300 overflow-hidden">
-        <div className="govt-card-header flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <User className="w-4 h-4 text-amber-400" />
-            <span className="font-extrabold text-xs uppercase tracking-wider">{t.applicantProfile}</span>
-          </div>
-          <span className="text-[10px] bg-emerald-500 text-white font-bold px-2 py-0.5 rounded">
-            {t.kycVerified}
-          </span>
-        </div>
-        <div className="govt-header-accent"></div>
-
-        <div className="p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="space-y-1">
-            <h1 className="text-xl font-extrabold text-[#0a2540]">
-              Applicant: <span className="text-[#0f2e5a] font-serif">{user?.fullName || 'Amit Kumar Santhal'}</span>
-            </h1>
-            <p className="text-xs text-slate-600 font-medium">
-              {t.domicileState}: <strong className="text-slate-900">{user?.state || 'Jharkhand'}</strong> • {t.category}: <strong className="text-amber-700 font-bold">Scheduled Tribe ({user?.category || 'ST'})</strong> • {t.digilockerId}: <strong className="text-blue-900">{user?.digilockerId || 'DIGI-ST-10001'}</strong>
-            </p>
-          </div>
-
-          <div className="w-full md:w-64 bg-slate-50 p-3.5 rounded border border-slate-300 space-y-1.5 text-xs">
-            <div className="flex items-center justify-between font-bold">
-              <span className="text-slate-600">{t.profileCompleteness}</span>
-              <span className="text-emerald-700">{user?.profileComplete || 85}%</span>
+    <ProtectedRoute allowedRoles={['APPLICANT']}>
+      <div className="space-y-6 py-2">
+        {/* Student Identity Card */}
+        <div className="govt-card bg-white border-slate-300 overflow-hidden">
+          <div className="govt-card-header flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <User className="w-4 h-4 text-amber-400" />
+              <span className="font-extrabold text-xs uppercase tracking-wider">{t.applicantProfile}</span>
             </div>
-            <div className="w-full h-2.5 bg-slate-200 rounded overflow-hidden">
-              <div
-                className="h-full bg-emerald-600 rounded transition-all"
-                style={{ width: `${user?.profileComplete || 85}%` }}
-              ></div>
-            </div>
+            <span className="text-[10px] bg-emerald-500 text-white font-bold px-2 py-0.5 rounded">
+              {t.kycVerified}
+            </span>
           </div>
-        </div>
-      </div>
+          <div className="govt-header-accent"></div>
 
-      {hasDeficiency && (
-        <div className="p-4 rounded-lg bg-amber-50 border border-amber-400 text-amber-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
-          <div className="flex items-center gap-3">
-            <AlertTriangle className="w-6 h-6 text-amber-600 shrink-0" />
-            <div>
-              <p className="font-extrabold text-sm text-amber-900">{t.deficiencyNoticeTitle}</p>
-              <p className="text-xs text-amber-800">
-                A scrutinizing officer flagged a document mismatch. Please re-upload updated document before deadline.
+          <div className="p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div className="space-y-1">
+              <h1 className="text-xl font-extrabold text-[#0a2540]">
+                Applicant: <span className="text-[#0f2e5a] font-serif">{user?.fullName || 'Amit Kumar Santhal'}</span>
+              </h1>
+              <p className="text-xs text-slate-600 font-medium">
+                {t.domicileState}: <strong className="text-slate-900">{user?.state || 'Jharkhand'}</strong> • {t.category}: <strong className="text-amber-700 font-bold">Scheduled Tribe ({user?.category || 'ST'})</strong> • {t.digilockerId}: <strong className="text-blue-900">{user?.digilockerId || 'DIGI-ST-10001'}</strong>
               </p>
             </div>
-          </div>
-          {applications.find((a) => a.status === 'DEFICIENCY_RAISED') && (
-            <Link
-              href={`/applicant/track/${applications.find((a) => a.status === 'DEFICIENCY_RAISED')?.id}`}
-              className="px-4 py-2 rounded bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shrink-0 transition-all shadow"
-            >
-              {t.resolveDeficiency}
-            </Link>
-          )}
-        </div>
-      )}
 
-      {/* Applications Table / Cards */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-extrabold text-[#0a2540] flex items-center gap-2">
-            <FileSpreadsheet className="w-5 h-5 text-[#0f2e5a]" />
-            {t.submittedApps}
-          </h2>
-          <Link
-            href="/#schemes"
-            className="px-3.5 py-1.5 rounded bg-[#0f2e5a] hover:bg-[#1a365d] text-white font-bold text-xs flex items-center gap-1.5 shadow"
-          >
-            <PlusCircle className="w-4 h-4" />
-            {t.applyNewScheme}
-          </Link>
-        </div>
-
-        {loading ? (
-          <div className="p-8 text-center text-slate-500 font-bold">Loading applicant records...</div>
-        ) : (
-          <div className="space-y-4">
-            {applications.map((app) => (
-              <div key={app.id} className="govt-card p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                <div className="space-y-2 flex-1">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <span className="font-extrabold text-xs text-[#0f2e5a] bg-blue-50 px-2.5 py-1 rounded border border-blue-200">
-                      APP NO: {app.applicationNo}
-                    </span>
-                    {getStatusBadge(app.status)}
-                    <span className="text-xs text-slate-600">
-                      OCR Score: <strong className="text-emerald-700">{app.aiConfidenceScore}%</strong>
-                    </span>
-                  </div>
-
-                  <h3 className="text-base font-extrabold text-[#0f2e5a]">{app.scheme?.name || 'NFST Fellowship Scheme'}</h3>
-                  <p className="text-xs text-slate-700">
-                    Course: <strong>{app.formData?.courseName || 'Ph.D Biotechnology'}</strong> • Institution:{' '}
-                    <strong>{app.formData?.institutionName || 'IIT Delhi'}</strong>
-                  </p>
-
-                  <div className="text-[11px] text-slate-500 pt-1">
-                    Submitted Date: {app.submittedAt ? new Date(app.submittedAt).toLocaleDateString() : 'Draft'}
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 self-end md:self-center">
-                  <a
-                    href={api.getPdfDownloadUrl(app.id)}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="px-3 py-2 rounded bg-slate-100 hover:bg-slate-200 text-[#0f2e5a] font-bold text-xs border border-slate-300 flex items-center gap-1.5 shadow-sm"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    {t.downloadSlip}
-                  </a>
-
-                  <Link
-                    href={`/applicant/track/${app.id}`}
-                    className="px-4 py-2 rounded bg-[#0f2e5a] hover:bg-[#1a365d] text-white font-bold text-xs flex items-center gap-1 shadow"
-                  >
-                    {t.trackStatus}
-                    <ChevronRight className="w-4 h-4" />
-                  </Link>
-                </div>
+            <div className="w-full md:w-64 bg-slate-50 p-3.5 rounded border border-slate-300 space-y-1.5 text-xs">
+              <div className="flex items-center justify-between font-bold">
+                <span className="text-slate-600">{t.profileCompleteness}</span>
+                <span className="text-emerald-700">{user?.profileComplete || 85}%</span>
               </div>
-            ))}
+              <div className="w-full h-2.5 bg-slate-200 rounded overflow-hidden">
+                <div
+                  className="h-full bg-emerald-600 rounded transition-all"
+                  style={{ width: `${user?.profileComplete || 85}%` }}
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {hasDeficiency && (
+          <div className="p-4 rounded-lg bg-amber-50 border border-amber-400 text-amber-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="w-6 h-6 text-amber-600 shrink-0" />
+              <div>
+                <p className="font-extrabold text-sm text-amber-900">{t.deficiencyNoticeTitle}</p>
+                <p className="text-xs text-amber-800">
+                  A scrutinizing officer flagged a document mismatch. Please re-upload updated document before deadline.
+                </p>
+              </div>
+            </div>
+            {applications.find((a) => a.status === 'DEFICIENCY_RAISED') && (
+              <Link
+                href={`/applicant/track/${applications.find((a) => a.status === 'DEFICIENCY_RAISED')?.id}`}
+                className="px-4 py-2 rounded bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shrink-0 transition-all shadow"
+              >
+                {t.resolveDeficiency}
+              </Link>
+            )}
           </div>
         )}
+
+        {/* Applications Table / Cards */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-extrabold text-[#0a2540] flex items-center gap-2">
+              <FileSpreadsheet className="w-5 h-5 text-[#0f2e5a]" />
+              {t.submittedApps}
+            </h2>
+            <Link
+              href="/#schemes"
+              className="px-3.5 py-1.5 rounded bg-[#0f2e5a] hover:bg-[#1a365d] text-white font-bold text-xs flex items-center gap-1.5 shadow"
+            >
+              <PlusCircle className="w-4 h-4" />
+              {t.applyNewScheme}
+            </Link>
+          </div>
+
+          {loading ? (
+            <div className="p-8 text-center text-slate-500 font-bold">Loading applicant records...</div>
+          ) : (
+            <div className="space-y-4">
+              {applications.map((app) => (
+                <div key={app.id} className="govt-card p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                  <div className="space-y-2 flex-1">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <span className="font-extrabold text-xs text-[#0f2e5a] bg-blue-50 px-2.5 py-1 rounded border border-blue-200">
+                        APP NO: {app.applicationNo}
+                      </span>
+                      {getStatusBadge(app.status)}
+                      <span className="text-xs text-slate-600">
+                        OCR Score: <strong className="text-emerald-700">{app.aiConfidenceScore}%</strong>
+                      </span>
+                    </div>
+
+                    <h3 className="text-base font-extrabold text-[#0f2e5a]">{app.scheme?.name || 'NFST Fellowship Scheme'}</h3>
+                    <p className="text-xs text-slate-700">
+                      Course: <strong>{app.formData?.courseName || 'Ph.D Biotechnology'}</strong> • Institution:{' '}
+                      <strong>{app.formData?.institutionName || 'IIT Delhi'}</strong>
+                    </p>
+
+                    <div className="text-[11px] text-slate-500 pt-1">
+                      Submitted Date: {app.submittedAt ? new Date(app.submittedAt).toLocaleDateString() : 'Draft'}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 self-end md:self-center">
+                    <a
+                      href={api.getPdfDownloadUrl(app.id)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-3 py-2 rounded bg-slate-100 hover:bg-slate-200 text-[#0f2e5a] font-bold text-xs border border-slate-300 flex items-center gap-1.5 shadow-sm"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      {t.downloadSlip}
+                    </a>
+
+                    <Link
+                      href={`/applicant/track/${app.id}`}
+                      className="px-4 py-2 rounded bg-[#0f2e5a] hover:bg-[#1a365d] text-white font-bold text-xs flex items-center gap-1 shadow"
+                    >
+                      {t.trackStatus}
+                      <ChevronRight className="w-4 h-4" />
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }
