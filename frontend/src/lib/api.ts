@@ -199,4 +199,10 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ query }),
     }),
+
+  assistantChat: (message: string) =>
+    request('/assistant/chat', {
+      method: 'POST',
+      body: JSON.stringify({ message }),
+    }),
 };

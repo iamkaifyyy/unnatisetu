@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import './globals.css';
 import Navbar from '../components/Navbar';
+import AiAssistantWidget from '../components/AiAssistantWidget';
 import { LanguageProvider } from '../context/LanguageContext';
 import { NICLogo, DigitalIndiaLogo, IndiaGovLogo } from '../components/Logos';
 
@@ -23,6 +24,7 @@ export default function RootLayout({
           <main id="main-content" className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 py-6">
             {children}
           </main>
+          <AiAssistantWidget />
 
           {/* Official Indian Government Footer with Tricolor Ribbon */}
           <footer className="bg-[#0b1d3a] text-slate-300 text-xs mt-12 relative">

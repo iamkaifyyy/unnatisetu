@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { api, setAuthToken, setCurrentUserRole } from '../lib/api';
 import { LANGUAGES } from '../lib/languages';
 import { useLanguage } from '../context/LanguageContext';
@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 
 export default function Navbar() {
+  const router = useRouter();
   const pathname = usePathname();
   const { selectedLang, setLanguage } = useLanguage();
 
@@ -65,6 +66,12 @@ export default function Navbar() {
       if (data?.user) {
         setCurrentRole(data.user.role);
         setCurrentUserRole(data.user.role);
+        
+        // Navigate seamlessly to corresponding workspace dashboard
+        if (role === 'APPLICANT') router.push('/applicant/dashboard');
+        else if (role === 'VERIFIER') router.push('/admin/verification');
+        else if (role === 'STATE_ADMIN') router.push('/admin/schemes');
+        else if (role === 'MINISTRY_ADMIN') router.push('/admin/analytics');
       }
     } catch (err) {
       console.error('Failed to switch role:', err);
