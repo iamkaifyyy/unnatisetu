@@ -1,29 +1,97 @@
-import { Router, Response } from 'express';
+import { Router, Response, Request } from 'express';
 import { prisma } from '../services/db.js';
 import { AuthRequest, authenticateToken } from '../middleware/auth.js';
-import { EligibilityEngine } from '../services/eligibilityEngine.js';
+import { EligibilityEngine, checkEligibility } from '../services/eligibilityEngine.js';
 import { AuditLogger } from '../services/auditLogger.js';
 import { PDFService } from '../services/pdfService.js';
+import { GeminiService } from '../services/geminiService.js';
 
 const router = Router();
 
-// Get Applicant's own applications
+// Evaluate & explain eligibility for any form data & scheme
+router.post('/check-eligibility', async (req: Request, res: Response) => {
+  try {
+    const { formData = {}, schemeId, schemeCode = 'BVOBC', documents = [] } = req.body;
+
+    let targetScheme = null;
+    if (schemeId) {
+      targetScheme = await prisma.scheme.findUnique({
+        where: { id: schemeId },
+        include: { configs: { where: { isActive: true }, take: 1 } },
+      });
+    } else if (schemeCode) {
+      targetScheme = await prisma.scheme.findFirst({
+        where: { code: schemeCode },
+        include: { configs: { where: { isActive: true }, take: 1 } },
+      });
+    }
+
+    const activeConfig = targetScheme?.configs[0];
+    const rules = activeConfig ? JSON.parse(activeConfig.eligibilityRulesJson || '[]') : [];
+    const requiredDocs = activeConfig ? JSON.parse(activeConfig.requiredDocumentsJson || '[]') : [];
+
+    const structuredCheck = checkEligibility(
+      { formData, documents },
+      { eligibilityRules: rules, requiredDocuments: requiredDocs }
+    );
+
+    // Feature 2: Plain-Language Eligibility Explanation (Cached)
+    const explanation = await GeminiService.generateEligibilityExplanation(
+      structuredCheck.eligible,
+      structuredCheck.reasons,
+      structuredCheck.missingDocuments,
+      formData
+    );
+
+    return res.json({
+      structuredCheck,
+      explanation,
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// Get Applicant's own applications with Plain-Language Eligibility Explanation
 router.get('/my', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const applications = await prisma.application.findMany({
       where: { userId: req.user!.id },
       include: {
-        scheme: true,
+        scheme: { include: { configs: { where: { isActive: true }, take: 1 } } },
         documents: true,
         deficiencies: { where: { status: 'OPEN' } },
       },
       orderBy: { updatedAt: 'desc' },
     });
 
-    const parsed = applications.map((a) => ({
-      ...a,
-      formData: JSON.parse(a.formDataJson || '{}'),
-    }));
+    const parsed = await Promise.all(
+      applications.map(async (a) => {
+        const formData = JSON.parse(a.formDataJson || '{}');
+        const activeConfig = a.scheme.configs[0];
+        const rules = activeConfig ? JSON.parse(activeConfig.eligibilityRulesJson || '[]') : [];
+        const requiredDocs = activeConfig ? JSON.parse(activeConfig.requiredDocumentsJson || '[]') : [];
+
+        const structuredCheck = checkEligibility(
+          { formData, documents: a.documents },
+          { eligibilityRules: rules, requiredDocuments: requiredDocs }
+        );
+
+        const explanation = await GeminiService.generateEligibilityExplanation(
+          structuredCheck.eligible,
+          structuredCheck.reasons,
+          structuredCheck.missingDocuments,
+          formData
+        );
+
+        return {
+          ...a,
+          formData,
+          eligibilityEvaluation: structuredCheck,
+          eligibilityExplanation: explanation,
+        };
+      })
+    );
 
     return res.json({ applications: parsed });
   } catch (err: any) {
@@ -31,7 +99,7 @@ router.get('/my', authenticateToken, async (req: AuthRequest, res: Response) => 
   }
 });
 
-// Create/Update Draft Application (Autosave)
+// Create/Update Draft Application
 router.post('/draft', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const { schemeId, formData, applicationId } = req.body;
@@ -107,10 +175,8 @@ router.post('/:id/submit', authenticateToken, async (req: AuthRequest, res: Resp
     const activeConfig = app.scheme.configs[0];
     const rules = activeConfig ? JSON.parse(activeConfig.eligibilityRulesJson || '[]') : [];
 
-    // Run deterministic Eligibility Engine check
     const evalResult = EligibilityEngine.evaluate(formData, rules);
 
-    // Compute initial AI Confidence Score from document scan confidence
     const docConfidences = app.documents.map((d) => d.ocrConfidenceScore);
     const avgDocConf = docConfidences.length > 0 ? docConfidences.reduce((a, b) => a + b, 0) / docConfidences.length : 85.0;
 
@@ -139,7 +205,7 @@ router.post('/:id/submit', authenticateToken, async (req: AuthRequest, res: Resp
       metadata: { evaluationSummary: evalResult.summary, confidence: overallConfidence },
     });
 
-    // Send Notification
+    // Notification
     await prisma.notification.create({
       data: {
         userId: req.user!.id,
@@ -159,7 +225,7 @@ router.post('/:id/submit', authenticateToken, async (req: AuthRequest, res: Resp
   }
 });
 
-// Get Application Detail (Single view)
+// Get Application Detail (Single view) with Plain Language explanation & AI advisory checks
 router.get('/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const app = await prisma.application.findUnique({
@@ -183,13 +249,25 @@ router.get('/:id', authenticateToken, async (req: AuthRequest, res: Response) =>
     const formData = JSON.parse(app.formDataJson || '{}');
     const activeConfig = app.scheme.configs[0];
     const rules = activeConfig ? JSON.parse(activeConfig.eligibilityRulesJson || '[]') : [];
+    const requiredDocs = activeConfig ? JSON.parse(activeConfig.requiredDocumentsJson || '[]') : [];
 
-    const eligibilityEval = EligibilityEngine.evaluate(formData, rules);
+    const structuredCheck = checkEligibility(
+      { formData, documents: app.documents },
+      { eligibilityRules: rules, requiredDocuments: requiredDocs }
+    );
+
+    const explanation = await GeminiService.generateEligibilityExplanation(
+      structuredCheck.eligible,
+      structuredCheck.reasons,
+      structuredCheck.missingDocuments,
+      formData
+    );
 
     const parsedDocs = app.documents.map((d) => ({
       ...d,
       ocrExtracted: JSON.parse(d.ocrExtractedJson || '{}'),
       mismatchFlags: JSON.parse(d.mismatchFlagsJson || '[]'),
+      advisoryNote: d.verificationStatus === 'FLAGGED' ? 'AI-flagged, pending human review.' : undefined,
     }));
 
     return res.json({
@@ -197,7 +275,8 @@ router.get('/:id', authenticateToken, async (req: AuthRequest, res: Response) =>
         ...app,
         formData,
         documents: parsedDocs,
-        eligibilityEval,
+        eligibilityEval: structuredCheck,
+        eligibilityExplanation: explanation,
       },
     });
   } catch (err: any) {
@@ -205,7 +284,7 @@ router.get('/:id', authenticateToken, async (req: AuthRequest, res: Response) =>
   }
 });
 
-// Download PDF Acknowledgment / Provisional Selection Letter
+// Download PDF Acknowledgment
 router.get('/:id/pdf', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const app = await prisma.application.findUnique({

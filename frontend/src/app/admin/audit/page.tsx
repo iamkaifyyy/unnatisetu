@@ -46,16 +46,25 @@ function AuditLogsContent() {
             <HistoryIcon className="w-4 h-4 text-amber-400" />
             <span>Central Regulatory & CAG Audit Trail Stream</span>
           </div>
-          <div className="relative w-full sm:w-64">
-            <SearchIcon className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-            <input
-              type="text"
-              placeholder="Search App No or Action..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && fetchLogs()}
-              className="w-full pl-9 pr-3 py-1 rounded bg-slate-900 border border-slate-700 text-white text-xs outline-none font-medium"
-            />
+          <div className="flex items-center gap-3">
+            <div className="relative w-full sm:w-64">
+              <SearchIcon className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+              <input
+                type="text"
+                placeholder="Search App No or Action..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && fetchLogs()}
+                className="w-full pl-9 pr-3 py-1 rounded bg-slate-900 border border-slate-700 text-white text-xs outline-none font-medium"
+              />
+            </div>
+            <button
+              onClick={fetchLogs}
+              className="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold text-xs flex items-center gap-1 shrink-0 shadow border border-slate-700"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 text-amber-400 ${loading ? 'animate-spin' : ''}`} />
+              Refresh
+            </button>
           </div>
         </div>
         <div className="tricolor-ribbon"></div>

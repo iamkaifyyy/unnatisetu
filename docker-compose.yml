@@ -9,7 +9,7 @@ services:
       - "5001:5001"
     environment:
       - PORT=5001
-      - DATABASE_URL=file:./dev.db
+      - DATABASE_URL=mongodb+srv://mkaifm728_db_user:Kaifyyy@cluster0.vtme9pp.mongodb.net/unnatisetu?retryWrites=true&w=majority
       - JWT_SECRET=sih_2026_mota_tribal_affairs_secret_key_jwt_super_secure
     volumes:
       - ./backend/prisma:/app/prisma

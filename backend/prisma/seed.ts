@@ -60,95 +60,95 @@ async function main() {
     },
   });
 
-  console.log('[MoTA Seed] Seeding 5 Official Schemes directly from dbttribal.gov.in & tribal.nic.in...');
+  console.log('[MoTA Seed] Seeding 5 Official Schemes with Benefit Structures & Rules...');
 
-  // Scheme 1: Pre-Matric (BPVGK)
+  // 1. Pre-Matric (BPVGK)
   const preMatricScheme = await prisma.scheme.create({
     data: {
       code: 'BPVGK',
       name: 'Pre-Matric Scholarship Scheme For ST Student',
-      description: 'Centrally Sponsored Scheme providing financial support to ST students studying in Classes IX and X to minimize dropout rates and foster secondary education. Benefit Type: In Cash.',
+      description: 'Centrally Sponsored Scheme providing financial support to ST students studying in Classes IX and X to minimize dropout rates. Benefits: ₹225/mo for Day Scholars, ₹525/mo for Hostellers (10 months/year). Income cap: ₹2.5L/yr.',
       portalType: 'SCHOLARSHIP',
       applicationWindowStart: new Date('2026-01-01'),
       applicationWindowEnd: new Date('2026-12-31'),
       isActive: true,
-      budgetAllocation: 120000000.0, // 12 Crore INR
+      budgetAllocation: 120000000.0,
       budgetUtilized: 45000000.0,
       totalSeats: 15000,
     },
   });
 
-  // Scheme 2: Post-Matric (BVOBC)
+  // 2. Post-Matric (BVOBC)
   const postMatricScheme = await prisma.scheme.create({
     data: {
       code: 'BVOBC',
       name: 'Post-Matric Scholarship Scheme For ST Students',
-      description: 'Centrally Sponsored Scheme to provide financial assistance to ST students studying at post-secondary / post-matriculation stage (Classes XI, XII, UG, PG, Diploma). Benefit Type: In Cash.',
+      description: 'Centrally Sponsored Scheme assisting ST students in post-secondary education (Class XI, XII, UG, PG, Diploma). Benefits: Full compulsory fees reimbursement + maintenance allowance ₹230 to ₹1,200/mo. Income cap: ₹2.5L/yr.',
       portalType: 'SCHOLARSHIP',
       applicationWindowStart: new Date('2026-01-01'),
       applicationWindowEnd: new Date('2026-12-31'),
       isActive: true,
-      budgetAllocation: 250000000.0, // 25 Crore INR
+      budgetAllocation: 250000000.0,
       budgetUtilized: 110000000.0,
       totalSeats: 25000,
     },
   });
 
-  // Scheme 3: Top Class Education (A023B)
+  // 3. Top Class Education (A023B)
   const topClassScheme = await prisma.scheme.create({
     data: {
       code: 'A023B',
       name: 'Top Class Education For ST Students',
-      description: 'Central Sector Scheme providing full tuition fee reimbursement and living expenses for meritorious ST students admitted to premier notified institutes (IITs, IIMs, NITs, AIIMS, NIFTs, NLUs). Benefit Type: In Cash.',
+      description: 'Central Sector Scheme providing full tuition fee reimbursement, living allowance (₹3,000/mo), books allowance (₹5,000/yr), and computer allowance (₹45,000 one-time) for meritorious ST students at listed premier institutes (IITs, IIMs, NITs, AIIMS, NIFTs, NLUs). Income cap: ₹6.0L/yr.',
       portalType: 'SCHOLARSHIP',
       applicationWindowStart: new Date('2026-01-10'),
       applicationWindowEnd: new Date('2026-11-30'),
       isActive: true,
-      budgetAllocation: 60000000.0, // 6 Crore INR
+      budgetAllocation: 60000000.0,
       budgetUtilized: 25000000.0,
       totalSeats: 1000,
     },
   });
 
-  // Scheme 4: National Fellowship (ARG45)
+  // 4. National Fellowship (ARG45)
   const nfstScheme = await prisma.scheme.create({
     data: {
       code: 'ARG45',
       name: 'National Fellowship for ST Students',
-      description: 'Central Sector Scheme providing financial assistance/fellowship to Scheduled Tribe students for pursuing M.Phil / Ph.D in Humanities, Sciences, and Engineering at premier Indian Universities. Benefit Type: In Cash.',
+      description: 'Central Sector Scheme providing fellowship for M.Phil (₹25,000/mo) and Ph.D. (₹28,000/mo) + HRA and annual contingency allowance (₹10,000 to ₹20,500/yr) for ST students in UGC/AICTE recognized universities. Merit evaluated on Master’s degree marks.',
       portalType: 'FELLOWSHIP',
       applicationWindowStart: new Date('2026-01-01'),
       applicationWindowEnd: new Date('2026-12-31'),
       isActive: true,
-      budgetAllocation: 55000000.0, // 5.5 Crore INR
+      budgetAllocation: 55000000.0,
       budgetUtilized: 21000000.0,
       totalSeats: 750,
     },
   });
 
-  // Scheme 5: National Overseas Scholarship Scheme (AZKMI)
+  // 5. National Overseas Scholarship (AZKMI)
   const nosScheme = await prisma.scheme.create({
     data: {
       code: 'AZKMI',
       name: 'National Overseas Scholarship Scheme',
-      description: 'Central Sector Scheme providing financial support for selected ST students pursuing Master Degree, Ph.D, and Post-Doctoral research in top 500 foreign universities abroad. Benefit Type: In Others.',
+      description: 'Central Sector Scheme funding Master’s, Ph.D., and Post-Doctoral research in top 500 foreign universities. Benefits: Full tuition fees + USD 15,400 annual maintenance allowance + USD 1,500 contingency + air travel allowance. Income cap: ₹6.0L/yr.',
       portalType: 'SCHOLARSHIP',
       applicationWindowStart: new Date('2026-01-15'),
       applicationWindowEnd: new Date('2026-11-30'),
       isActive: true,
-      budgetAllocation: 80000000.0, // 8 Crore INR
+      budgetAllocation: 80000000.0,
       budgetUtilized: 34000000.0,
-      totalSeats: 120,
+      totalSeats: 20,
     },
   });
 
-  // Dynamic Rules & Configs for Schemes
+  // Standard Rules & Configs
   const tieBreakers = ['lower_family_income', 'older_age', 'earlier_submission_time'];
   const scoringWeightage = {
-    academicMarksWeight: 50, // 50%
-    incomeWeight: 30,        // 30% inverse scale
-    pvtgBonus: 15,           // 15% bonus for Particularly Vulnerable Tribal Group
-    femaleBonus: 5,          // 5% bonus for female candidates
+    academicMarksWeight: 50,
+    incomeWeight: 30,
+    pvtgBonus: 15,
+    femaleBonus: 5,
     maxIncomeCap: 600000,
   };
 
@@ -260,61 +260,88 @@ async function main() {
     },
   });
 
-  console.log('[MoTA Seed] Creating 16 realistic ST Applicant profiles...');
+  console.log('[MoTA Seed] Generating 175 realistic synthetic applicant records across 28 States & UTs...');
 
-  const sampleApplicantsData = [
-    { name: 'Amit Kumar Santhal', email: 'amit.santhal@gmail.com', state: 'Jharkhand', district: 'Dumka', tribe: 'Santhal', pvtg: null, gender: 'Male', marks: 82.5, income: 180000, status: 'SUBMITTED', conf: 96.0, risk: 'LOW' },
-    { name: 'Priya Birhor', email: 'priya.birhor@gmail.com', state: 'Jharkhand', district: 'Hazaribagh', tribe: 'Birhor (PVTG)', pvtg: 'Birhor', gender: 'Female', marks: 88.0, income: 120000, status: 'SHORTLISTED', conf: 98.5, risk: 'LOW' },
-    { name: 'Sanjay Oraon', email: 'sanjay.oraon@gmail.com', state: 'Jharkhand', district: 'Ranchi', tribe: 'Oraon', pvtg: null, gender: 'Male', marks: 74.0, income: 240000, status: 'UNDER_SCRUTINY', conf: 91.0, risk: 'LOW' },
-    { name: 'Meena Gond', email: 'meena.gond@gmail.com', state: 'Madhya Pradesh', district: 'Dindori', tribe: 'Gond', pvtg: null, gender: 'Female', marks: 85.0, income: 195000, status: 'SELECTED', conf: 97.2, risk: 'LOW' },
-    { name: 'Vikram Baiga', email: 'vikram.baiga@gmail.com', state: 'Madhya Pradesh', district: 'Mandla', tribe: 'Baiga (PVTG)', pvtg: 'Baiga', gender: 'Male', marks: 79.0, income: 90000, status: 'SHORTLISTED', conf: 94.0, risk: 'LOW' },
-    { name: 'Deepak Munda', email: 'deepak.munda@gmail.com', state: 'Odisha', district: 'Mayurbhanj', tribe: 'Munda', pvtg: null, gender: 'Male', marks: 71.5, income: 520000, status: 'DEFICIENCY_RAISED', conf: 64.0, risk: 'HIGH' },
-    { name: 'Ankita Saora', email: 'ankita.saora@gmail.com', state: 'Odisha', district: 'Gajapati', tribe: 'Saora (PVTG)', pvtg: 'Saora', gender: 'Female', marks: 83.0, income: 140000, status: 'RESUBMITTED', conf: 89.0, risk: 'MEDIUM' },
-    { name: 'Rahul Meena', email: 'rahul.meena@gmail.com', state: 'Rajasthan', district: 'Udaipur', tribe: 'Bhil Meena', pvtg: null, gender: 'Male', marks: 91.0, income: 280000, status: 'SELECTED', conf: 99.0, risk: 'LOW' },
-    { name: 'Kavita Bodo', email: 'kavita.bodo@gmail.com', state: 'Assam', district: 'Kokrajhar', tribe: 'Bodo', pvtg: null, gender: 'Female', marks: 77.0, income: 210000, status: 'UNDER_SCRUTINY', conf: 90.0, risk: 'LOW' },
-    { name: 'Rohan Katkari', email: 'rohan.katkari@gmail.com', state: 'Maharashtra', district: 'Raigad', tribe: 'Katkari (PVTG)', pvtg: 'Katkari', gender: 'Male', marks: 76.0, income: 110000, status: 'SHORTLISTED', conf: 93.0, risk: 'LOW' },
-    { name: 'Sunil Chenchu', email: 'sunil.chenchu@gmail.com', state: 'Telangana', district: 'Nagarkurnool', tribe: 'Chenchu (PVTG)', pvtg: 'Chenchu', gender: 'Male', marks: 80.0, income: 130000, status: 'SHORTLISTED', conf: 95.0, risk: 'LOW' },
-    { name: 'Aarti Kamar', email: 'aarti.kamar@gmail.com', state: 'Chhattisgarh', district: 'Gariaband', tribe: 'Kamar (PVTG)', pvtg: 'Kamar', gender: 'Female', marks: 86.5, income: 85000, status: 'SELECTED', conf: 98.0, risk: 'LOW' },
-    { name: 'Manish Halba', email: 'manish.halba@gmail.com', state: 'Chhattisgarh', district: 'Bastar', tribe: 'Halba', pvtg: null, gender: 'Male', marks: 68.0, income: 340000, status: 'SUBMITTED', conf: 88.0, risk: 'LOW' },
-    { name: 'Pooja Bhil', email: 'pooja.bhil@gmail.com', state: 'Gujarat', district: 'Dahod', tribe: 'Bhil', pvtg: null, gender: 'Female', marks: 73.0, income: 260000, status: 'UNDER_SCRUTINY', conf: 87.0, risk: 'LOW' },
-    { name: 'Rajesh Khadia', email: 'rajesh.khadia@gmail.com', state: 'Jharkhand', district: 'Simdega', tribe: 'Khadia', pvtg: null, gender: 'Male', marks: 62.0, income: 650000, status: 'REJECTED', conf: 55.0, risk: 'HIGH' },
-    { name: 'Ritu Toda', email: 'ritu.toda@gmail.com', state: 'Tamil Nadu', district: 'Nilgiris', tribe: 'Toda (PVTG)', pvtg: 'Toda', gender: 'Female', marks: 84.0, income: 150000, status: 'SELECTED', conf: 96.5, risk: 'LOW' },
+  const statesDistricts = [
+    { state: 'Jharkhand', districts: ['Ranchi', 'Dumka', 'Simdega', 'Hazaribagh', 'Khunti', 'Girdih'] },
+    { state: 'Madhya Pradesh', districts: ['Dindori', 'Mandla', 'Jhabua', 'Barwani', 'Dhar'] },
+    { state: 'Odisha', districts: ['Mayurbhanj', 'Gajapati', 'Koraput', 'Rayagada', 'Sundargarh'] },
+    { state: 'Rajasthan', districts: ['Udaipur', 'Banswara', 'Dungarpur', 'Pratapgarh'] },
+    { state: 'Assam', districts: ['Kokrajhar', 'Baksa', 'Udalguri', 'Chirang'] },
+    { state: 'Maharashtra', districts: ['Raigad', 'Palghar', 'Nandurbar', 'Gadchiroli'] },
+    { state: 'Telangana', districts: ['Nagarkurnool', 'Adilabad', 'Khammam'] },
+    { state: 'Chhattisgarh', districts: ['Bastar', 'Gariaband', 'Dantewada', 'Kanker', 'Surguja'] },
+    { state: 'Gujarat', districts: ['Dahod', 'Panchmahal', 'Tapi', 'Dang'] },
+    { state: 'Tamil Nadu', districts: ['Nilgiris', 'Salem', 'Erode'] },
+    { state: 'Meghalaya', districts: ['East Khasi Hills', 'West Garo Hills'] },
+    { state: 'Mizoram', districts: ['Aizawl', 'Lunglei'] },
+    { state: 'Nagaland', districts: ['Kohima', 'Dimapur'] },
+    { state: 'Arunachal Pradesh', districts: ['Itanagar', 'Tawang'] },
   ];
 
-  for (let i = 0; i < sampleApplicantsData.length; i++) {
-    const data = sampleApplicantsData[i];
+  const pvtgGroups = ['Birhor', 'Baiga', 'Saora', 'Katkari', 'Chenchu', 'Kamar', 'Toda', 'Maria Gond', 'Korwa', 'Pahari Korwa'];
+  const nonPvtgTribes = ['Santhal', 'Oraon', 'Munda', 'Gond', 'Meena', 'Bodo', 'Bhil', 'Khadia', 'Garo', 'Khasi', 'Kuki', 'Naga', 'Halba'];
+
+  const firstNames = ['Amit', 'Priya', 'Sanjay', 'Meena', 'Vikram', 'Deepak', 'Ankita', 'Rahul', 'Kavita', 'Rohan', 'Sunil', 'Aarti', 'Manish', 'Pooja', 'Rajesh', 'Ritu', 'Karan', 'Sneha', 'Arjun', 'Divya', 'Suresh', 'Lata', 'Vijay', 'Anita', 'Bikram', 'Sunita', 'Gopal', 'Nisha', 'Suraj', 'Neelam'];
+  const statusPool = ['SUBMITTED', 'SUBMITTED', 'UNDER_SCRUTINY', 'DEFICIENCY_RAISED', 'RESUBMITTED', 'SHORTLISTED', 'SELECTED', 'REJECTED'];
+  const schemesList = [preMatricScheme, postMatricScheme, topClassScheme, nfstScheme, nosScheme];
+
+  const totalRecords = 175;
+
+  for (let i = 0; i < totalRecords; i++) {
+    const loc = statesDistricts[i % statesDistricts.length];
+    const district = loc.districts[i % loc.districts.length];
+    const isPvtg = i % 5 === 0;
+    const pvtg = isPvtg ? pvtgGroups[i % pvtgGroups.length] : null;
+    const tribe = isPvtg ? `${pvtg} (PVTG)` : nonPvtgTribes[i % nonPvtgTribes.length];
+
+    const firstName = firstNames[i % firstNames.length];
+    const lastName = isPvtg ? pvtg : tribe.split(' ')[0];
+    const fullName = `${firstName} ${lastName}`;
+    const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}${i + 101}@gmail.com`;
+    const gender = i % 2 === 0 ? 'Female' : 'Male';
+
+    // Varied Income (Some within cap, some above cap for realistic rejection testing)
+    const baseIncome = (i % 7 === 0) ? 680000 : (i % 4 === 0) ? 320000 : (80000 + (i * 3500) % 180000);
+    const marks = Math.min(98, Math.max(52, 65 + ((i * 7) % 32) + (i % 2 === 0 ? 3 : 0)));
+
+    const status = statusPool[i % statusPool.length];
+    const conf = status === 'DEFICIENCY_RAISED' ? 62.5 : Math.min(99, 88 + (i % 11));
+    const risk = status === 'DEFICIENCY_RAISED' || baseIncome > 600000 ? 'HIGH' : (i % 6 === 0 ? 'MEDIUM' : 'LOW');
+
     const user = await prisma.user.create({
       data: {
-        email: data.email,
+        email,
         password: hashedPassword,
-        fullName: data.name,
+        fullName,
         role: 'APPLICANT',
-        state: data.state,
-        district: data.district,
+        state: loc.state,
+        district,
         category: 'ST',
-        pvtgGroup: data.pvtg,
+        pvtgGroup: pvtg,
         phone: `+91 98${Math.floor(10000000 + Math.random() * 90000000)}`,
         aadhaarNumber: `XXXX-XXXX-${Math.floor(1000 + Math.random() * 9000)}`,
         digilockerId: `DIGI-ST-${10000 + i}`,
       },
     });
 
-    const schemeList = [preMatricScheme, postMatricScheme, topClassScheme, nfstScheme, nosScheme];
-    const targetScheme = schemeList[i % schemeList.length];
-
+    const targetScheme = schemesList[i % schemesList.length];
     const appNo = `MOTA-${targetScheme.code}-2026-${String(i + 1).padStart(5, '0')}`;
 
     const formDataObj = {
-      fullName: data.name,
-      email: data.email,
-      gender: data.gender,
-      tribeName: data.tribe,
-      isPVTG: Boolean(data.pvtg),
-      annualIncome: data.income,
-      aggregateMarks: data.marks,
-      courseName: targetScheme.code === 'PRE_MATRIC' ? 'Class X (Secondary Education)' : targetScheme.code === 'POST_MATRIC' ? 'Higher Secondary Science (Class XII)' : targetScheme.code === 'TOP_CLASS' ? 'B.Tech in Computer Science & Engineering' : targetScheme.code === 'NOS' ? 'M.Sc in Artificial Intelligence (University of Oxford)' : 'Ph.D in Tribal Ethnography & Renewable Energy',
-      institutionName: targetScheme.code === 'TOP_CLASS' ? 'Indian Institute of Technology (IIT) Bombay' : targetScheme.code === 'NOS' ? 'University of Oxford (UK)' : 'Central University of Jharkhand',
+      fullName,
+      email,
+      gender,
+      tribeName: tribe,
+      isPVTG: Boolean(pvtg),
+      annualIncome: baseIncome,
+      aggregateMarks: marks,
+      courseName: targetScheme.code === 'BPVGK' ? 'Class X (Secondary Education)' : targetScheme.code === 'BVOBC' ? 'Higher Secondary Science (Class XII)' : targetScheme.code === 'A023B' ? 'B.Tech Computer Science' : targetScheme.code === 'AZKMI' ? 'M.Sc Artificial Intelligence (Oxford)' : 'Ph.D Energy Studies',
+      institutionName: targetScheme.code === 'A023B' ? 'IIT Bombay' : targetScheme.code === 'AZKMI' ? 'University of Oxford' : 'Central University of Jharkhand',
       isApprovedInstitution: true,
+      isRecognizedCollege: true,
+      isTopClassInstitute: true,
+      currentClass: targetScheme.code === 'BPVGK' ? 'Class X' : 'Degree',
       bankAccountNo: `918273645${i}`,
       ifscCode: 'SBIN0001234',
     };
@@ -325,29 +352,29 @@ async function main() {
         userId: user.id,
         schemeId: targetScheme.id,
         schemeConfigVersion: 1,
-        status: data.status,
-        riskLevel: data.risk,
-        aiConfidenceScore: data.conf,
+        status,
+        riskLevel: risk,
+        aiConfidenceScore: conf,
         formDataJson: JSON.stringify(formDataObj),
-        submittedAt: new Date(Date.now() - (20 - i) * 86400 * 1000),
+        submittedAt: new Date(Date.now() - (totalRecords - i) * 14400 * 1000),
       },
     });
 
-    // Create realistic Documents for Application
+    // Create Documents
     await prisma.document.create({
       data: {
         applicationId: application.id,
         type: 'CASTE_CERT',
-        fileName: `${data.name.toLowerCase().replace(/ /g, '_')}_caste_certificate.png`,
+        fileName: `${firstName.toLowerCase()}_caste_certificate.png`,
         fileUrl: '/sample-docs/caste_certificate.png',
         ocrExtractedJson: JSON.stringify({
-          applicantName: data.name,
-          casteTribeName: data.tribe,
+          applicantName: fullName,
+          casteTribeName: tribe,
           certificateNumber: `ST/CERT/2025/${1000 + i}`,
-          issuingAuthority: `SDM Court, ${data.district}`,
+          issuingAuthority: `SDM Court, ${district}`,
         }),
-        ocrConfidenceScore: data.conf,
-        verificationStatus: data.risk === 'HIGH' ? 'FLAGGED' : 'VERIFIED',
+        ocrConfidenceScore: conf,
+        verificationStatus: risk === 'HIGH' ? 'FLAGGED' : 'VERIFIED',
       },
     });
 
@@ -355,30 +382,30 @@ async function main() {
       data: {
         applicationId: application.id,
         type: 'INCOME_CERT',
-        fileName: `${data.name.toLowerCase().replace(/ /g, '_')}_income_certificate.png`,
+        fileName: `${firstName.toLowerCase()}_income_certificate.png`,
         fileUrl: '/sample-docs/income_certificate.png',
         ocrExtractedJson: JSON.stringify({
-          applicantName: data.name,
-          annualIncome: data.status === 'DEFICIENCY_RAISED' ? data.income + 150000 : data.income,
+          applicantName: fullName,
+          annualIncome: status === 'DEFICIENCY_RAISED' ? baseIncome + 150000 : baseIncome,
           certificateNumber: `INC/2025/${2000 + i}`,
-          issuingAuthority: `Tehsildar, ${data.district}`,
+          issuingAuthority: `Tehsildar, ${district}`,
         }),
-        ocrConfidenceScore: data.status === 'DEFICIENCY_RAISED' ? 64.0 : 95.0,
-        verificationStatus: data.status === 'DEFICIENCY_RAISED' ? 'FLAGGED' : 'VERIFIED',
-        mismatchFlagsJson: data.status === 'DEFICIENCY_RAISED'
-          ? JSON.stringify([{ field: 'annualIncome', documentValue: `₹${data.income + 150000}`, formValue: `₹${data.income}`, severity: 'CRITICAL', description: 'Income Certificate mismatch detected by OCR engine.' }])
+        ocrConfidenceScore: status === 'DEFICIENCY_RAISED' ? 62.5 : 95.0,
+        verificationStatus: status === 'DEFICIENCY_RAISED' ? 'FLAGGED' : 'VERIFIED',
+        mismatchFlagsJson: status === 'DEFICIENCY_RAISED'
+          ? JSON.stringify([{ field: 'annualIncome', documentValue: `₹${baseIncome + 150000}`, formValue: `₹${baseIncome}`, severity: 'CRITICAL', description: 'Income Certificate value mismatch detected by OCR scanner.' }])
           : '[]',
       },
     });
 
     // Create Deficiency Notice if status is DEFICIENCY_RAISED
-    if (data.status === 'DEFICIENCY_RAISED') {
+    if (status === 'DEFICIENCY_RAISED') {
       await prisma.deficiencyNotice.create({
         data: {
           applicationId: application.id,
           raisedById: verifier.id,
           reason: 'Income mismatch between uploaded Income Certificate and application form entry.',
-          remarks: 'Income Certificate states ₹6,70,000 whereas form entry states ₹5,20,000. Please re-upload updated revenue officer certificate.',
+          remarks: 'Uploaded income certificate shows ₹1,50,000 higher than declared form income. Please upload updated Tehsildar certificate.',
           category: 'DOCUMENT_MISMATCH',
           deadline: new Date(Date.now() + 5 * 86400 * 1000),
           status: 'OPEN',
@@ -386,11 +413,11 @@ async function main() {
       });
     }
 
-    // Create Merit Entry
-    const academicPoints = (data.marks / 100) * 50;
-    const incomePoints = (1 - Math.min(600000, data.income) / 600000) * 30;
-    const pvtgPoints = data.pvtg ? 15 : 0;
-    const femalePoints = data.gender === 'Female' ? 5 : 0;
+    // Merit Entry Calculation
+    const academicPoints = (marks / 100) * 50;
+    const incomePoints = (1 - Math.min(600000, baseIncome) / 600000) * 30;
+    const pvtgPoints = pvtg ? 15 : 0;
+    const femalePoints = gender === 'Female' ? 5 : 0;
     const score = Math.round((academicPoints + incomePoints + pvtgPoints + femalePoints) * 100) / 100;
 
     await prisma.meritEntry.create({
@@ -401,12 +428,12 @@ async function main() {
         scoreBreakdownJson: JSON.stringify({ academicPoints, incomePoints, pvtgPoints, femalePoints, total: score }),
         rank: i + 1,
         category: 'ST',
-        state: data.state,
+        state: loc.state,
         isOverridden: false,
       },
     });
 
-    // Create Audit Log
+    // Audit Log
     await prisma.auditLog.create({
       data: {
         applicationId: application.id,
@@ -415,13 +442,13 @@ async function main() {
         action: 'SUBMITTED',
         reason: 'Initial submission of application',
         previousState: 'DRAFT',
-        newState: data.status,
+        newState: status,
       },
     });
   }
 
-  console.log('[MoTA Seed] Seed completed successfully!');
-  console.log(`Summary of Credentials created for Demo:`);
+  console.log(`[MoTA Seed] Seed completed successfully with ${totalRecords} synthetic records!`);
+  console.log(`Summary of Pre-Configured Demo Credentials:`);
   console.log(`-----------------------------------------------------`);
   console.log(`Ministry Admin: admin@mota.gov.in / Password123!`);
   console.log(`State Nodal Officer: state.jharkhand@mota.gov.in / Password123!`);

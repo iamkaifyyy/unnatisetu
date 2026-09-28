@@ -180,4 +180,29 @@ export const api = {
   // Notifications
   getNotifications: () => request('/notifications'),
   markNotificationRead: (id: string) => request(`/notifications/${id}/read`, { method: 'POST' }),
+
+  // AI-Assisted Features
+  verifyDocument: (payload: { documentType: string; fileName?: string; formData?: any; imageBase64?: string; applicationId?: string; documentId?: string }) =>
+    request('/documents/verify', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  checkEligibility: (payload: { formData: any; schemeId?: string; schemeCode?: string; documents?: any[] }) =>
+    request('/applications/check-eligibility', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  adminQuery: (query: string) =>
+    request('/admin/query', {
+      method: 'POST',
+      body: JSON.stringify({ query }),
+    }),
+
+  assistantChat: (message: string) =>
+    request('/assistant/chat', {
+      method: 'POST',
+      body: JSON.stringify({ message }),
+    }),
 };

@@ -26,11 +26,80 @@ import {
 } from 'lucide-react';
 import { AshokaEmblemLogo } from '../components/Logos';
 
+// Official 5 Schemes Dataset from dbttribal.gov.in/AllScheme.aspx & tribal.nic.in/ScholarshiP.aspx
+const defaultOfficialDataset: Scheme[] = [
+  {
+    id: 'scheme_bvobc',
+    code: 'BVOBC',
+    name: 'Post-Matric Scholarship Scheme For ST Students',
+    description: 'Centrally Sponsored Scheme implemented through States/UTs to provide financial assistance to ST students pursuing post-matriculation courses (Class XI, XII, UG, PG, Ph.D, Diploma). Benefit Type: In Cash.',
+    portalType: 'SCHOLARSHIP',
+    applicationWindowStart: '2026-01-01',
+    applicationWindowEnd: '2026-12-31',
+    isActive: true,
+    budgetAllocation: 250000000,
+    budgetUtilized: 110000000,
+    totalSeats: 25000,
+  },
+  {
+    id: 'scheme_bpvgk',
+    code: 'BPVGK',
+    name: 'Pre-Matric Scholarship Scheme For ST Student',
+    description: 'Centrally Sponsored Scheme implemented through States/UTs for ST students studying in Classes IX and X to minimize dropout rates and foster secondary education. Benefit Type: In Cash.',
+    portalType: 'SCHOLARSHIP',
+    applicationWindowStart: '2026-01-01',
+    applicationWindowEnd: '2026-12-31',
+    isActive: true,
+    budgetAllocation: 120000000,
+    budgetUtilized: 45000000,
+    totalSeats: 15000,
+  },
+  {
+    id: 'scheme_a023b',
+    code: 'A023B',
+    name: 'Top Class Education For ST Students',
+    description: 'Central Sector Scheme providing full financial assistance to meritorious ST students pursuing higher education in 265 notified Premier Institutes (IITs, IIMs, NITs, AIIMS, NIFTs, NLUs). Benefit Type: In Cash.',
+    portalType: 'SCHOLARSHIP',
+    applicationWindowStart: '2026-01-10',
+    applicationWindowEnd: '2026-11-30',
+    isActive: true,
+    budgetAllocation: 60000000,
+    budgetUtilized: 25000000,
+    totalSeats: 1000,
+  },
+  {
+    id: 'scheme_arg45',
+    code: 'ARG45',
+    name: 'National Fellowship for ST Students',
+    description: 'Central Sector Scheme providing fellowship to Scheduled Tribe students for pursuing M.Phil and Ph.D. degrees in Indian Universities approved by UGC / AICTE. Benefit Type: In Cash.',
+    portalType: 'FELLOWSHIP',
+    applicationWindowStart: '2026-01-01',
+    applicationWindowEnd: '2026-12-31',
+    isActive: true,
+    budgetAllocation: 55000000,
+    budgetUtilized: 21000000,
+    totalSeats: 750,
+  },
+  {
+    id: 'scheme_azkmi',
+    code: 'AZKMI',
+    name: 'National Overseas Scholarship Scheme',
+    description: 'Central Sector Scheme providing financial support for selected ST students pursuing Master Degree, Ph.D, and Post-Doctoral research in top 500 foreign universities abroad. Benefit Type: In Others.',
+    portalType: 'SCHOLARSHIP',
+    applicationWindowStart: '2026-01-15',
+    applicationWindowEnd: '2026-11-30',
+    isActive: true,
+    budgetAllocation: 80000000,
+    budgetUtilized: 34000000,
+    totalSeats: 90,
+  },
+];
+
 export default function HomePage() {
-  const router = Router();
+  const router = useRouter();
   const { t } = useLanguage();
-  const [schemes, setSchemes] = useState<Scheme[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [schemes, setSchemes] = useState<Scheme[]>(defaultOfficialDataset);
+  const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentUser, setCurrentUser] = useState<any>(null);
 
@@ -83,75 +152,6 @@ export default function HomePage() {
       setLoading(false);
     }
   };
-
-  // Official 5 Schemes Dataset from dbttribal.gov.in/AllScheme.aspx & tribal.nic.in/ScholarshiP.aspx
-  const defaultOfficialDataset: Scheme[] = [
-    {
-      id: 'scheme_bvobc',
-      code: 'BVOBC',
-      name: 'Post-Matric Scholarship Scheme For ST Students',
-      description: 'Centrally Sponsored Scheme implemented through States/UTs to provide financial assistance to ST students pursuing post-matriculation courses (Class XI, XII, UG, PG, Ph.D, Diploma). Benefit Type: In Cash.',
-      portalType: 'SCHOLARSHIP',
-      applicationWindowStart: '2026-01-01',
-      applicationWindowEnd: '2026-12-31',
-      isActive: true,
-      budgetAllocation: 250000000,
-      budgetUtilized: 110000000,
-      totalSeats: 25000,
-    },
-    {
-      id: 'scheme_bpvgk',
-      code: 'BPVGK',
-      name: 'Pre-Matric Scholarship Scheme For ST Student',
-      description: 'Centrally Sponsored Scheme implemented through States/UTs for ST students studying in Classes IX and X to minimize dropout rates and foster secondary education. Benefit Type: In Cash.',
-      portalType: 'SCHOLARSHIP',
-      applicationWindowStart: '2026-01-01',
-      applicationWindowEnd: '2026-12-31',
-      isActive: true,
-      budgetAllocation: 120000000,
-      budgetUtilized: 45000000,
-      totalSeats: 15000,
-    },
-    {
-      id: 'scheme_a023b',
-      code: 'A023B',
-      name: 'Top Class Education For ST Students',
-      description: 'Central Sector Scheme providing full financial assistance to meritorious ST students pursuing higher education in 265 notified Premier Institutes (IITs, IIMs, NITs, AIIMS, NIFTs, NLUs). Benefit Type: In Cash.',
-      portalType: 'SCHOLARSHIP',
-      applicationWindowStart: '2026-01-10',
-      applicationWindowEnd: '2026-11-30',
-      isActive: true,
-      budgetAllocation: 60000000,
-      budgetUtilized: 25000000,
-      totalSeats: 1000,
-    },
-    {
-      id: 'scheme_arg45',
-      code: 'ARG45',
-      name: 'National Fellowship for ST Students',
-      description: 'Central Sector Scheme providing fellowship to Scheduled Tribe students for pursuing M.Phil and Ph.D. degrees in Indian Universities approved by UGC / AICTE. Benefit Type: In Cash.',
-      portalType: 'FELLOWSHIP',
-      applicationWindowStart: '2026-01-01',
-      applicationWindowEnd: '2026-12-31',
-      isActive: true,
-      budgetAllocation: 55000000,
-      budgetUtilized: 21000000,
-      totalSeats: 750,
-    },
-    {
-      id: 'scheme_azkmi',
-      code: 'AZKMI',
-      name: 'National Overseas Scholarship Scheme',
-      description: 'Central Sector Scheme providing financial support for selected ST students pursuing Master Degree, Ph.D, and Post-Doctoral research in top 500 foreign universities abroad. Benefit Type: In Others.',
-      portalType: 'SCHOLARSHIP',
-      applicationWindowStart: '2026-01-15',
-      applicationWindowEnd: '2026-11-30',
-      isActive: true,
-      budgetAllocation: 80000000,
-      budgetUtilized: 34000000,
-      totalSeats: 90,
-    },
-  ];
 
   const filteredSchemes = (schemes.length > 0 ? schemes : defaultOfficialDataset).filter(
     (s) =>
@@ -237,7 +237,20 @@ export default function HomePage() {
   };
 
   return (
-    <div className="space-y-8 py-2">
+    <div className="space-y-6 py-2">
+      {/* Official MoTA Live Announcement Marquee Banner */}
+      <div className="w-full bg-[#08172e] border border-amber-500/40 rounded-lg py-2 px-3 flex items-center gap-3 text-xs shadow-md overflow-hidden font-sans">
+        <div className="bg-gradient-to-r from-[#ea580c] via-amber-500 to-[#138808] text-white font-black px-3 py-1 rounded text-[10px] uppercase tracking-wider shrink-0 flex items-center gap-1.5 shadow">
+          <span className="w-2 h-2 rounded-full bg-amber-200 animate-pulse"></span>
+          LATEST MOTA NOTIFICATIONS
+        </div>
+        <div className="overflow-hidden relative w-full flex items-center">
+          <div className="animate-marquee-scroll text-amber-100 font-semibold text-xs tracking-wide">
+            SCHOLARSHIP & FELLOWSHIP APPLICATIONS OPEN FOR AY 2026-27 (Pre-Matric BPVGK, Post-Matric BVOBC, Top Class Education A023B, National Fellowship ARG45, National Overseas AZKMI) &nbsp;&bull;&bull;&nbsp; AI Advisory Document Verification & Plain-Language Explanations Activated &nbsp;&bull;&bull;&nbsp; Direct Benefit Transfer (DBT) via Aadhaar Seeded Bank Accounts &nbsp;&bull;&bull;&nbsp; Ministry Student Helpline: 1800-11-7788 (Toll Free)
+          </div>
+        </div>
+      </div>
+
       {/* 1. Official Government Header & Hero Banner with Tricolor Theme */}
       <section className="govt-card overflow-hidden bg-white border border-slate-300 shadow-md">
         <div className="bg-[#0b1d3a] text-slate-200 px-5 py-2.5 flex items-center justify-between border-b border-slate-800">

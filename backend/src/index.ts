@@ -21,6 +21,8 @@ import meritRoutes from './routes/meritRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
 import auditRoutes from './routes/auditRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
+import assistantRoutes from './routes/assistantRoutes.js';
 
 dotenv.config();
 
@@ -123,6 +125,8 @@ app.use('/api/v1/merit', meritRoutes);
 app.use('/api/v1/analytics', analyticsRoutes);
 app.use('/api/v1/audit-logs', auditRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
+app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/assistant', assistantRoutes);
 
 // Legacy route compatibility mapping
 app.use('/api/auth', authRoutes);
@@ -135,6 +139,8 @@ app.use('/api/merit', meritRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/audit-logs', auditRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/assistant', assistantRoutes);
 
 const PORT = process.env.PORT || 5001;
 
