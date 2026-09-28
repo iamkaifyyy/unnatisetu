@@ -37,13 +37,11 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('mota_token');
     const role = localStorage.getItem('mota_role') || 'APPLICANT';
     setCurrentRole(role);
 
-    if (!token) {
-      switchRole('APPLICANT');
-    } else {
+    const token = localStorage.getItem('mota_token');
+    if (token) {
       fetchUser();
     }
   }, []);
@@ -56,7 +54,7 @@ export default function Navbar() {
         setCurrentUserRole(data.user.role);
       }
     } catch (e) {
-      switchRole('APPLICANT');
+      // Keep current stored role on error
     }
   };
 

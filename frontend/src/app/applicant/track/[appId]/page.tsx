@@ -149,6 +149,69 @@ export default function TrackApplicationPage() {
         </div>
       )}
 
+      {/* AI Advisory Document Deficiency Check & Status */}
+      <div className="govt-card p-6 space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+          <h2 className="text-sm font-extrabold text-[#0a2540] uppercase tracking-wider flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-[#0f2e5a]" />
+            AI Advisory Document Verification & Audit Flags
+          </h2>
+          <span className="text-[10px] bg-amber-100 text-amber-900 border border-amber-300 font-bold px-2 py-0.5 rounded">
+            Advisory Only • Human Oversight Retained
+          </span>
+        </div>
+
+        {application.documents && application.documents.length > 0 ? (
+          <div className="space-y-3">
+            {application.documents.map((doc) => {
+              const isFlagged = doc.verificationStatus === 'FLAGGED' || (doc.mismatchFlags && doc.mismatchFlags.length > 0);
+              return (
+                <div key={doc.id} className="p-3.5 rounded-lg border border-slate-200 bg-slate-50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 font-bold text-[#0f2e5a]">
+                      <FileText className="w-4 h-4 text-slate-600" />
+                      <span>{doc.type} ({doc.fileName})</span>
+                      {isFlagged ? (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-100 text-amber-900 border border-amber-400">
+                          AI-flagged, pending human review
+                        </span>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-100 text-emerald-900 border border-emerald-300">
+                          Verified Advisory
+                        </span>
+                      )}
+                    </div>
+                    {isFlagged && (
+                      <p className="text-amber-800 text-[11px] font-medium">
+                        Advisory note: Document may be missing an official stamp/date or contains a minor figure mismatch. Please review or re-upload if requested by verifier.
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    onClick={async () => {
+                      const res = await api.verifyDocument({
+                        documentType: doc.type,
+                        fileName: doc.fileName,
+                        formData: application.formData,
+                        applicationId: application.id,
+                        documentId: doc.id,
+                      });
+                      alert(`AI Verification Completed (${res.confidence} confidence):\n${res.advisoryNote || 'Advisory scan finished.'}`);
+                      fetchApplicationDetails();
+                    }}
+                    className="px-3 py-1.5 rounded bg-[#0f2e5a] hover:bg-[#1a365d] text-white font-bold text-xs shrink-0 shadow"
+                  >
+                    Run AI Re-Check
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="text-xs text-slate-500 font-medium italic">No uploaded documents attached to this application.</div>
+        )}
+      </div>
+
       {/* Progress Timeline */}
       <div className="govt-card p-6 space-y-4">
         <h2 className="text-sm font-extrabold text-[#0a2540] uppercase tracking-wider flex items-center gap-2">

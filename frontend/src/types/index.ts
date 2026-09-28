@@ -122,6 +122,10 @@ export interface Application {
   user?: User;
   documents?: Document[];
   deficiencies?: DeficiencyNotice[];
+  eligibilityExplanation?: {
+    englishExplanation: string;
+    hindiExplanation?: string;
+  };
   eligibilityEval?: {
     isEligible: boolean;
     scoreRatio: number;

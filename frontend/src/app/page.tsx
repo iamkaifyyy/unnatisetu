@@ -27,7 +27,7 @@ import {
 import { AshokaEmblemLogo } from '../components/Logos';
 
 export default function HomePage() {
-  const router = Router();
+  const router = useRouter();
   const { t } = useLanguage();
   const [schemes, setSchemes] = useState<Scheme[]>([]);
   const [loading, setLoading] = useState(true);

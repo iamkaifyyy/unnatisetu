@@ -124,3 +124,43 @@ export class EligibilityEngine {
     };
   }
 }
+
+/**
+ * Standard rule engine evaluator required by MoTA specification.
+ * Evaluates applicant income, education level, category, and uploaded documents against scheme config rule set.
+ * Returns { eligible: boolean, reasons: string[], missingDocuments: string[] }
+ */
+export function checkEligibility(
+  application: { formData: Record<string, any>; documents?: Array<{ type: string; verificationStatus?: string }> },
+  schemeConfig: { eligibilityRules?: EligibilityRule[]; requiredDocuments?: Array<{ type: string; name: string; required: boolean }> }
+): { eligible: boolean; reasons: string[]; missingDocuments: string[] } {
+  const formData = application.formData || {};
+  const rules = schemeConfig.eligibilityRules || [];
+  const evalResult = EligibilityEngine.evaluate(formData, rules);
+
+  const reasons: string[] = [];
+  evalResult.ruleResults.forEach((res) => {
+    if (!res.passed) {
+      reasons.push(res.reason);
+    }
+  });
+
+  const missingDocuments: string[] = [];
+  const requiredDocs = schemeConfig.requiredDocuments || [];
+  const uploadedTypes = (application.documents || []).map((d) => d.type);
+
+  for (const docDef of requiredDocs) {
+    if (docDef.required && !uploadedTypes.includes(docDef.type)) {
+      missingDocuments.push(docDef.name || docDef.type);
+    }
+  }
+
+  const eligible = evalResult.isEligible && missingDocuments.length === 0;
+
+  return {
+    eligible,
+    reasons,
+    missingDocuments,
+  };
+}
+

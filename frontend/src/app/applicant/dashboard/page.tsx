@@ -170,6 +170,24 @@ export default function ApplicantDashboard() {
                       <strong>{app.formData?.institutionName || 'IIT Delhi'}</strong>
                     </p>
 
+                    {/* AI Plain-Language Eligibility Explanation */}
+                    {app.eligibilityExplanation && (
+                      <div className="mt-2.5 p-3 rounded-md bg-gradient-to-r from-blue-50/90 to-amber-50/90 border border-blue-200 text-xs space-y-1">
+                        <div className="flex items-center gap-1.5 font-bold text-[#0f2e5a] text-[11px] uppercase tracking-wider">
+                          <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                          <span>AI Eligibility Explanation (Plain Language)</span>
+                        </div>
+                        <p className="text-slate-800 font-medium leading-relaxed">
+                          {app.eligibilityExplanation.englishExplanation}
+                        </p>
+                        {app.eligibilityExplanation.hindiExplanation && (
+                          <p className="text-slate-700 font-serif text-[11px] border-t border-blue-100 pt-1 mt-1">
+                            {app.eligibilityExplanation.hindiExplanation}
+                          </p>
+                        )}
+                      </div>
+                    )}
+
                     <div className="text-[11px] text-slate-500 pt-1">
                       Submitted Date: {app.submittedAt ? new Date(app.submittedAt).toLocaleDateString() : 'Draft'}
                     </div>

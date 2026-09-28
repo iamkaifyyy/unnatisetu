@@ -59,6 +59,32 @@ function AnalyticsDashboardContent() {
   const [selectedFY, setSelectedFY] = useState('2026-27');
   const [activeTab, setActiveTab] = useState<'overview' | 'sla' | 'geographic' | 'budget'>('overview');
 
+  // Feature 3: Natural Language Admin Search State
+  const [naturalQuery, setNaturalQuery] = useState('');
+  const [queryResult, setQueryResult] = useState<any>(null);
+  const [queryError, setQueryError] = useState<string | null>(null);
+  const [searchingQuery, setSearchingQuery] = useState(false);
+
+  const handleAdminQuery = async () => {
+    if (!naturalQuery.trim()) return;
+    try {
+      setSearchingQuery(true);
+      setQueryError(null);
+      const res = await api.adminQuery(naturalQuery.trim());
+      if (res.success && res.filter) {
+        setQueryResult(res);
+      } else {
+        setQueryResult(null);
+        setQueryError(res.message || "couldn't parse that query");
+      }
+    } catch (err: any) {
+      setQueryResult(null);
+      setQueryError("couldn't parse that query");
+    } finally {
+      setSearchingQuery(false);
+    }
+  };
+
   useEffect(() => {
     loadAnalytics();
   }, []);
@@ -226,6 +252,117 @@ function AnalyticsDashboardContent() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Feature 3: Natural Language Admin Search Bar */}
+      <div className="govt-card p-5 space-y-3 bg-gradient-to-r from-blue-900 to-[#0f2e5a] text-white">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xs font-extrabold uppercase tracking-wider flex items-center gap-2 text-amber-300">
+            <Sparkles className="w-4 h-4 text-amber-400" />
+            Natural-Language Admin Database Search (Sanitized AI Query Engine)
+          </h2>
+          <span className="text-[10px] bg-emerald-600 text-white px-2 py-0.5 rounded font-bold">
+            Allow-List Protected • No Code Injection
+          </span>
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          <div className="relative flex-1 w-full">
+            <input
+              type="text"
+              placeholder='Try e.g. "show Post-Matric applicants from Uttar Pradesh pending verification for more than 15 days"'
+              value={naturalQuery}
+              onChange={(e) => setNaturalQuery(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleAdminQuery()}
+              className="w-full px-4 py-2.5 rounded bg-white text-slate-900 font-medium text-xs placeholder:text-slate-400 outline-none shadow-inner"
+            />
+          </div>
+          <button
+            onClick={handleAdminQuery}
+            disabled={searchingQuery}
+            className="w-full sm:w-auto px-5 py-2.5 rounded bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs shrink-0 transition-all shadow flex items-center justify-center gap-2"
+          >
+            {searchingQuery ? 'Parsing Query...' : 'Run Natural Query'}
+          </button>
+        </div>
+
+        {/* Example Queries */}
+        <div className="flex flex-wrap items-center gap-2 text-[11px] text-blue-200">
+          <span className="font-bold text-amber-300">Quick Prompts:</span>
+          <button
+            onClick={() => setNaturalQuery('show Post-Matric applicants from Uttar Pradesh pending verification for more than 15 days')}
+            className="hover:underline text-blue-100 bg-blue-950/60 px-2 py-0.5 rounded border border-blue-700/50"
+          >
+            Post-Matric Uttar Pradesh &gt; 15 days pending
+          </button>
+          <button
+            onClick={() => setNaturalQuery('high risk ST fellowship applications from Jharkhand')}
+            className="hover:underline text-blue-100 bg-blue-950/60 px-2 py-0.5 rounded border border-blue-700/50"
+          >
+            High Risk ST apps from Jharkhand
+          </button>
+          <button
+            onClick={() => setNaturalQuery('Pre-Matric applicants with family income under 2.5 lakh')}
+            className="hover:underline text-blue-100 bg-blue-950/60 px-2 py-0.5 rounded border border-blue-700/50"
+          >
+            Pre-Matric income &lt; 2.5L
+          </button>
+        </div>
+
+        {/* Query Results / Fallback Message */}
+        {queryError && (
+          <div className="p-3 rounded bg-rose-500/20 border border-rose-400 text-rose-200 text-xs font-bold">
+            {queryError}
+          </div>
+        )}
+
+        {queryResult && (
+          <div className="p-4 rounded bg-white/95 text-slate-900 space-y-3 shadow-lg">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+              <span className="font-extrabold text-xs text-[#0f2e5a]">
+                Parsed Sanitized Filter: {JSON.stringify(queryResult.filter)}
+              </span>
+              <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded">
+                Matching Records: {queryResult.resultsCount}
+              </span>
+            </div>
+
+            {queryResult.applications && queryResult.applications.length > 0 ? (
+              <div className="overflow-x-auto max-h-60">
+                <table className="govt-table text-xs">
+                  <thead>
+                    <tr>
+                      <th>App No</th>
+                      <th>Candidate Name</th>
+                      <th>State</th>
+                      <th>Scheme</th>
+                      <th>Status</th>
+                      <th>Risk</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {queryResult.applications.map((app: any) => (
+                      <tr key={app.id}>
+                        <td className="font-extrabold text-[#0f2e5a]">{app.applicationNo}</td>
+                        <td className="font-bold">{app.user?.fullName}</td>
+                        <td>{app.user?.state}</td>
+                        <td>{app.scheme?.code}</td>
+                        <td>
+                          <span className="px-2 py-0.5 rounded font-bold bg-slate-100 text-slate-800 border">
+                            {app.status}
+                          </span>
+                        </td>
+                        <td className="font-bold text-amber-800">{app.riskLevel}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-xs text-slate-500 italic">No matching DB records found for this query filter.</p>
+            )}
+          </div>
+        )}
       </div>
 
       {/* 2. Key Performance Indicators (KPI Cards) */}
