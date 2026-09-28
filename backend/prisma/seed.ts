@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 [MoTA Seed] Clearing existing database records...');
+  console.log('[MoTA Seed] Clearing existing database records...');
   await prisma.auditLog.deleteMany();
   await prisma.meritEntry.deleteMany();
   await prisma.deficiencyNotice.deleteMany();
@@ -17,7 +17,7 @@ async function main() {
 
   const hashedPassword = await bcrypt.hash('Password123!', 10);
 
-  console.log('👥 [MoTA Seed] Creating Administrative & Officer users...');
+  console.log('[MoTA Seed] Creating Administrative & Officer users...');
 
   // Ministry Super Admin
   const ministryAdmin = await prisma.user.create({
@@ -60,7 +60,7 @@ async function main() {
     },
   });
 
-  console.log('📜 [MoTA Seed] Seeding 5 Official Schemes directly from dbttribal.gov.in & tribal.nic.in...');
+  console.log('[MoTA Seed] Seeding 5 Official Schemes directly from dbttribal.gov.in & tribal.nic.in...');
 
   // Scheme 1: Pre-Matric (BPVGK)
   const preMatricScheme = await prisma.scheme.create({
@@ -260,7 +260,7 @@ async function main() {
     },
   });
 
-  console.log('🎓 [MoTA Seed] Creating 16 realistic ST Applicant profiles...');
+  console.log('[MoTA Seed] Creating 16 realistic ST Applicant profiles...');
 
   const sampleApplicantsData = [
     { name: 'Amit Kumar Santhal', email: 'amit.santhal@gmail.com', state: 'Jharkhand', district: 'Dumka', tribe: 'Santhal', pvtg: null, gender: 'Male', marks: 82.5, income: 180000, status: 'SUBMITTED', conf: 96.0, risk: 'LOW' },
@@ -420,13 +420,13 @@ async function main() {
     });
   }
 
-  console.log('✅ [MoTA Seed] Seed completed successfully!');
+  console.log('[MoTA Seed] Seed completed successfully!');
   console.log(`Summary of Credentials created for Demo:`);
   console.log(`-----------------------------------------------------`);
-  console.log(`👑 Ministry Admin: admin@mota.gov.in / Password123!`);
-  console.log(`🏛️ State Nodal Officer: state.jharkhand@mota.gov.in / Password123!`);
-  console.log(`🔍 District Verifier: verifier.ranchi@mota.gov.in / Password123!`);
-  console.log(`🎓 ST Applicant 1: amit.santhal@gmail.com / Password123!`);
+  console.log(`Ministry Admin: admin@mota.gov.in / Password123!`);
+  console.log(`State Nodal Officer: state.jharkhand@mota.gov.in / Password123!`);
+  console.log(`District Verifier: verifier.ranchi@mota.gov.in / Password123!`);
+  console.log(`ST Applicant 1: amit.santhal@gmail.com / Password123!`);
   console.log(`-----------------------------------------------------`);
 }
 

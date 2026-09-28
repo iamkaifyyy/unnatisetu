@@ -1,8 +1,8 @@
 import { Router, Response } from 'express';
 import { prisma } from '../services/db.js';
 import { AuthRequest, authenticateToken, requireRoles } from '../middleware/auth.js';
-import { MeritEngine, MeritCalculationInput } from '../services/meritEngine.ts';
-import { AuditLogger } from '../services/auditLogger.ts';
+import { MeritEngine, MeritCalculationInput } from '../services/meritEngine.js';
+import { AuditLogger } from '../services/auditLogger.js';
 
 const router = Router();
 

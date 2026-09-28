@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
 import { prisma } from '../services/db.js';
 import { AuthRequest, authenticateToken } from '../middleware/auth.js';
-import { OCRService } from '../services/ocrService.ts';
+import { OCRService } from '../services/ocrService.js';
 
 const router = Router();
 

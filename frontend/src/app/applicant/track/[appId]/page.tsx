@@ -172,7 +172,7 @@ export default function TrackApplicationPage() {
                       : 'bg-slate-200 text-slate-600'
                   }`}
                 >
-                  {isDone ? '✓' : idx + 1}
+                  {isDone ? <CheckCircle2 className="w-3.5 h-3.5 text-white" /> : idx + 1}
                 </span>
 
                 <div>

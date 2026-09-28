@@ -3,9 +3,18 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../../lib/api';
 import { AuditLog } from '../../../types';
-import { History, Search, ShieldCheck, RefreshCw, Calendar } from 'lucide-react';
+import { ProtectedRoute } from '../../../components/ProtectedRoute';
+import { History as HistoryIcon, Search as SearchIcon, ShieldCheck, RefreshCw, Calendar as CalendarIcon } from 'lucide-react';
 
 export default function AuditLogsPage() {
+  return (
+    <ProtectedRoute allowedRoles={['MINISTRY_ADMIN']}>
+      <AuditLogsContent />
+    </ProtectedRoute>
+  );
+}
+
+function AuditLogsContent() {
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -34,11 +43,11 @@ export default function AuditLogsPage() {
       <div className="govt-card overflow-hidden">
         <div className="govt-card-header flex items-center justify-between">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider">
-            <History className="w-4 h-4 text-amber-400" />
+            <HistoryIcon className="w-4 h-4 text-amber-400" />
             <span>Central Regulatory & CAG Audit Trail Stream</span>
           </div>
           <div className="relative w-full sm:w-64">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+            <SearchIcon className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
             <input
               type="text"
               placeholder="Search App No or Action..."
@@ -97,7 +106,7 @@ export default function AuditLogsPage() {
 
                 <div className="text-right text-[10px] text-slate-500 font-medium shrink-0">
                   <div className="flex items-center gap-1">
-                    <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                    <CalendarIcon className="w-3.5 h-3.5 text-slate-400" />
                     {new Date(log.timestamp).toLocaleString()}
                   </div>
                 </div>

@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
 import { prisma } from '../services/db.js';
 import { AuthRequest, authenticateToken } from '../middleware/auth.js';
-import { AuditLogger } from '../services/auditLogger.ts';
+import { AuditLogger } from '../services/auditLogger.js';
 
 const router = Router();
 

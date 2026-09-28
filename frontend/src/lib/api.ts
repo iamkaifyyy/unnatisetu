@@ -51,11 +51,32 @@ async function request(endpoint: string, options: RequestInit = {}) {
 }
 
 export const api = {
-  // Auth
   seedLogin: async (role: 'APPLICANT' | 'VERIFIER' | 'STATE_ADMIN' | 'MINISTRY_ADMIN') => {
     const data = await request('/auth/seed-login', {
       method: 'POST',
       body: JSON.stringify({ role }),
+    });
+    if (data.token) {
+      setAuthToken(data.token);
+      setCurrentUserRole(data.user.role);
+    }
+    return data;
+  },
+  login: async (credentials: { email: string; password: string }) => {
+    const data = await request('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+    });
+    if (data.token) {
+      setAuthToken(data.token);
+      setCurrentUserRole(data.user.role);
+    }
+    return data;
+  },
+  register: async (userData: any) => {
+    const data = await request('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(userData),
     });
     if (data.token) {
       setAuthToken(data.token);
@@ -68,6 +89,7 @@ export const api = {
   // Schemes
   getSchemes: () => request('/schemes'),
   getSchemeById: (id: string) => request(`/schemes/${id}`),
+  syncDataset: () => request('/schemes/sync-dataset', { method: 'POST' }),
   saveSchemeConfig: (id: string, config: any) =>
     request(`/schemes/${id}/config`, {
       method: 'POST',

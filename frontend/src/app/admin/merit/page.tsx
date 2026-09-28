@@ -15,7 +15,17 @@ import {
   ChevronDown,
 } from 'lucide-react';
 
+import { ProtectedRoute } from '../../../components/ProtectedRoute';
+
 export default function MeritSelectionPage() {
+  return (
+    <ProtectedRoute allowedRoles={['STATE_ADMIN', 'MINISTRY_ADMIN']}>
+      <MeritSelectionContent />
+    </ProtectedRoute>
+  );
+}
+
+function MeritSelectionContent() {
   const [schemes, setSchemes] = useState<Scheme[]>([]);
   const [selectedSchemeId, setSelectedSchemeId] = useState<string>('');
   const [meritList, setMeritList] = useState<MeritEntry[]>([]);

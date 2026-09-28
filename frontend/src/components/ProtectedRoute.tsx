@@ -10,7 +10,7 @@ interface ProtectedRouteProps {
   allowedRoles: Array<'APPLICANT' | 'VERIFIER' | 'STATE_ADMIN' | 'MINISTRY_ADMIN'>;
 }
 
-export default function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
+export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [authorized, setAuthorized] = useState(false);
@@ -83,7 +83,10 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
           </div>
 
           <div className="govt-notice-box text-xs space-y-1">
-            <p className="font-bold text-amber-900">🔒 NIC Portal Security Notice:</p>
+            <p className="font-bold text-amber-900 flex items-center gap-1.5">
+              <Lock className="w-3.5 h-3.5 text-amber-900" />
+              <span>NIC Portal Security Notice:</span>
+            </p>
             <p className="text-amber-800 text-[11px]">
               Unauthorized attempts to access restricted government officer verification queues are monitored and logged to CAG-compliant audit trail logs.
             </p>
@@ -114,3 +117,5 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
 
   return <>{children}</>;
 }
+
+export default ProtectedRoute;

@@ -2,321 +2,618 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { api } from '../lib/api';
+import { useRouter } from 'next/navigation';
+import { api, setCurrentUserRole } from '../lib/api';
 import { Scheme } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 import {
   ShieldCheck,
-  Sparkles,
-  Zap,
-  CheckCircle2,
-  Sliders,
   FileCheck,
   ArrowRight,
   Award,
   BookOpen,
   Building2,
-  Clock,
-  ExternalLink,
-  HelpCircle,
+  Download,
+  Search,
+  Globe2,
+  Lock,
+  UserPlus,
+  LogIn,
+  X,
+  CheckCircle2,
   FileSpreadsheet,
+  AlertCircle,
 } from 'lucide-react';
+import { AshokaEmblemLogo } from '../components/Logos';
 
 export default function HomePage() {
+  const router = Router();
   const { t } = useLanguage();
   const [schemes, setSchemes] = useState<Scheme[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  // Login / Signup Modal State
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'LOGIN' | 'SIGNUP'>('LOGIN');
+  const [targetSchemeId, setTargetSchemeId] = useState<string | null>(null);
+
+  // Form Inputs
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [state, setState] = useState('Jharkhand');
+  const [aadhaarNumber, setAadhaarNumber] = useState('');
+  const [authError, setAuthError] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
 
   useEffect(() => {
     fetchSchemes();
+    checkUser();
   }, []);
+
+  const checkUser = async () => {
+    try {
+      const token = localStorage.getItem('mota_token');
+      if (token) {
+        const data = await api.getMe();
+        if (data?.user) {
+          setCurrentUser(data.user);
+        }
+      }
+    } catch (e) {
+      setCurrentUser(null);
+    }
+  };
 
   const fetchSchemes = async () => {
     try {
       const data = await api.getSchemes();
-      if (data?.schemes) {
+      if (data?.schemes && data.schemes.length > 0) {
         setSchemes(data.schemes);
+      } else {
+        setSchemes(defaultOfficialDataset);
       }
     } catch (err) {
-      console.error('Error loading schemes:', err);
+      console.error('Error loading schemes, using official dataset fallback:', err);
+      setSchemes(defaultOfficialDataset);
     } finally {
       setLoading(false);
     }
   };
 
+  // Official 5 Schemes Dataset from dbttribal.gov.in/AllScheme.aspx & tribal.nic.in/ScholarshiP.aspx
+  const defaultOfficialDataset: Scheme[] = [
+    {
+      id: 'scheme_bvobc',
+      code: 'BVOBC',
+      name: 'Post-Matric Scholarship Scheme For ST Students',
+      description: 'Centrally Sponsored Scheme implemented through States/UTs to provide financial assistance to ST students pursuing post-matriculation courses (Class XI, XII, UG, PG, Ph.D, Diploma). Benefit Type: In Cash.',
+      portalType: 'SCHOLARSHIP',
+      applicationWindowStart: '2026-01-01',
+      applicationWindowEnd: '2026-12-31',
+      isActive: true,
+      budgetAllocation: 250000000,
+      budgetUtilized: 110000000,
+      totalSeats: 25000,
+    },
+    {
+      id: 'scheme_bpvgk',
+      code: 'BPVGK',
+      name: 'Pre-Matric Scholarship Scheme For ST Student',
+      description: 'Centrally Sponsored Scheme implemented through States/UTs for ST students studying in Classes IX and X to minimize dropout rates and foster secondary education. Benefit Type: In Cash.',
+      portalType: 'SCHOLARSHIP',
+      applicationWindowStart: '2026-01-01',
+      applicationWindowEnd: '2026-12-31',
+      isActive: true,
+      budgetAllocation: 120000000,
+      budgetUtilized: 45000000,
+      totalSeats: 15000,
+    },
+    {
+      id: 'scheme_a023b',
+      code: 'A023B',
+      name: 'Top Class Education For ST Students',
+      description: 'Central Sector Scheme providing full financial assistance to meritorious ST students pursuing higher education in 265 notified Premier Institutes (IITs, IIMs, NITs, AIIMS, NIFTs, NLUs). Benefit Type: In Cash.',
+      portalType: 'SCHOLARSHIP',
+      applicationWindowStart: '2026-01-10',
+      applicationWindowEnd: '2026-11-30',
+      isActive: true,
+      budgetAllocation: 60000000,
+      budgetUtilized: 25000000,
+      totalSeats: 1000,
+    },
+    {
+      id: 'scheme_arg45',
+      code: 'ARG45',
+      name: 'National Fellowship for ST Students',
+      description: 'Central Sector Scheme providing fellowship to Scheduled Tribe students for pursuing M.Phil and Ph.D. degrees in Indian Universities approved by UGC / AICTE. Benefit Type: In Cash.',
+      portalType: 'FELLOWSHIP',
+      applicationWindowStart: '2026-01-01',
+      applicationWindowEnd: '2026-12-31',
+      isActive: true,
+      budgetAllocation: 55000000,
+      budgetUtilized: 21000000,
+      totalSeats: 750,
+    },
+    {
+      id: 'scheme_azkmi',
+      code: 'AZKMI',
+      name: 'National Overseas Scholarship Scheme',
+      description: 'Central Sector Scheme providing financial support for selected ST students pursuing Master Degree, Ph.D, and Post-Doctoral research in top 500 foreign universities abroad. Benefit Type: In Others.',
+      portalType: 'SCHOLARSHIP',
+      applicationWindowStart: '2026-01-15',
+      applicationWindowEnd: '2026-11-30',
+      isActive: true,
+      budgetAllocation: 80000000,
+      budgetUtilized: 34000000,
+      totalSeats: 90,
+    },
+  ];
+
+  const filteredSchemes = (schemes.length > 0 ? schemes : defaultOfficialDataset).filter(
+    (s) =>
+      (s.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (s.code || '').toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleApplyClick = (schemeId: string) => {
+    setTargetSchemeId(schemeId);
+    if (currentUser && currentUser.role === 'APPLICANT') {
+      router.push(`/applicant/apply/${schemeId}`);
+    } else {
+      setAuthError('');
+      setIsAuthModalOpen(true);
+    }
+  };
+
+  const handleDemoLogin = async () => {
+    try {
+      setAuthLoading(true);
+      const data = await api.seedLogin('APPLICANT');
+      if (data?.user) {
+        setCurrentUser(data.user);
+        setCurrentUserRole(data.user.role);
+        setIsAuthModalOpen(false);
+        if (targetSchemeId) {
+          router.push(`/applicant/apply/${targetSchemeId}`);
+        } else {
+          router.push('/applicant/dashboard');
+        }
+      }
+    } catch (err: any) {
+      setAuthError('Demo login failed. Please try again.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleAuthSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError('');
+    setAuthLoading(true);
+
+    try {
+      if (authMode === 'LOGIN') {
+        const data = await api.login({ email, password });
+        if (data?.user && data?.token) {
+          setCurrentUser(data.user);
+          setCurrentUserRole(data.user.role);
+          setIsAuthModalOpen(false);
+          if (targetSchemeId) {
+            router.push(`/applicant/apply/${targetSchemeId}`);
+          } else {
+            router.push('/applicant/dashboard');
+          }
+        }
+      } else {
+        const data = await api.register({
+          email,
+          password,
+          fullName,
+          role: 'APPLICANT',
+          state,
+          phone,
+          aadhaarNumber,
+        });
+        if (data?.user && data?.token) {
+          setCurrentUser(data.user);
+          setCurrentUserRole(data.user.role);
+          setIsAuthModalOpen(false);
+          if (targetSchemeId) {
+            router.push(`/applicant/apply/${targetSchemeId}`);
+          } else {
+            router.push('/applicant/dashboard');
+          }
+        }
+      }
+    } catch (err: any) {
+      setAuthError(err?.response?.data?.error || err.message || 'Authentication failed. Please check credentials.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-8 py-2">
-      {/* Official Government Hero Banner */}
-      <section className="govt-card overflow-hidden bg-white border border-slate-300">
-        <div className="govt-card-header flex items-center justify-between">
+      {/* 1. Official Government Header & Hero Banner with Tricolor Theme */}
+      <section className="govt-card overflow-hidden bg-white border border-slate-300 shadow-md">
+        <div className="bg-[#0b1d3a] text-slate-200 px-5 py-2.5 flex items-center justify-between border-b border-slate-800">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider">
+            <span className="w-2 h-2 rounded-full bg-[#ff9933]"></span>
+            <span className="w-2 h-2 rounded-full bg-white"></span>
+            <span className="w-2 h-2 rounded-full bg-[#138808]"></span>
             <ShieldCheck className="w-4 h-4 text-amber-400" />
-            <span>{t.motaTitle} • {t.portalName}</span>
+            <span className="text-white font-extrabold">MINISTRY OF TRIBAL AFFAIRS • GOVERNMENT OF INDIA</span>
           </div>
-          <div className="flex items-center gap-1.5 bg-slate-900/60 px-2.5 py-1 rounded border border-amber-500/30 text-[10px] font-extrabold text-white">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#ff9933]"></span>
-            <span className="w-2.5 h-2.5 rounded-full bg-white"></span>
-            <span className="w-2.5 h-2.5 rounded-full bg-[#138808]"></span>
-            <span className="ml-1 uppercase tracking-wider">Govt of India Verified</span>
-          </div>
-        </div>
-        <div className="tricolor-ribbon"></div>
-
-        <div className="p-6 sm:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-gradient-to-r from-slate-50 via-white to-amber-50/20">
-          <div className="lg:col-span-8 space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-[#0f2e5a] text-xs font-bold shadow-sm">
-              <span>🏛️ Smart India Hackathon 2026 Innovation</span>
-            </div>
-
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0a2540] leading-tight font-serif">
-              {t.heroTitle}
-            </h1>
-
-            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-medium max-w-3xl">
-              {t.heroSubtitle}
-            </p>
-
-            <div className="flex flex-wrap gap-3 pt-2">
-              <Link
-                href="/applicant/dashboard"
-                className="px-5 py-2.5 rounded-md bg-[#0f2e5a] hover:bg-[#1a365d] text-white font-bold text-xs shadow-md transition-all flex items-center gap-2"
-              >
-                <FileCheck className="w-4 h-4 text-amber-400" />
-                {t.applicantLogin}
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link
-                href="/admin/verification"
-                className="px-5 py-2.5 rounded-md bg-white hover:bg-slate-100 text-[#0f2e5a] font-bold text-xs border border-[#0f2e5a] transition-all flex items-center gap-2"
-              >
-                <ShieldCheck className="w-4 h-4 text-[#0f2e5a]" />
-                {t.officerPortal}
-              </Link>
-            </div>
-          </div>
-
-          <div className="lg:col-span-4 space-y-3">
-            <div className="govt-card p-4 space-y-3 bg-slate-50 border-slate-300 relative">
-              <div className="absolute top-0 left-0 bottom-0 w-1.5 rounded-l bg-gradient-to-b from-[#ff9933] via-slate-300 to-[#138808]"></div>
-              <div className="pl-2">
-                <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-                  <span className="text-xs font-extrabold text-[#0f2e5a] uppercase">Live Portal Metrics</span>
-                  <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded border border-emerald-300">
-                    Live Active
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 text-xs mt-3">
-                  <div className="bg-white p-3 rounded border border-slate-200">
-                    <p className="text-[10px] text-slate-500 font-bold uppercase">{t.sanctionedPool}</p>
-                    <p className="text-lg font-extrabold text-[#0f2e5a] mt-0.5">₹13.5 Cr</p>
-                  </div>
-                  <div className="bg-white p-3 rounded border border-slate-200">
-                    <p className="text-[10px] text-slate-500 font-bold uppercase">{t.ocrAccuracy}</p>
-                    <p className="text-lg font-extrabold text-emerald-700 mt-0.5">98.4%</p>
-                  </div>
-                  <div className="bg-white p-3 rounded border border-slate-200">
-                    <p className="text-[10px] text-slate-500 font-bold uppercase">{t.totalSeats}</p>
-                    <p className="text-lg font-extrabold text-amber-600 mt-0.5">870 Seats</p>
-                  </div>
-                  <div className="bg-white p-3 rounded border border-slate-200">
-                    <p className="text-[10px] text-slate-500 font-bold uppercase">{t.scrutinySla}</p>
-                    <p className="text-lg font-extrabold text-indigo-700 mt-0.5">3.4 Days</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <div className="tricolor-divider"></div>
-
-      {/* Quick Links */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-        <a href="#schemes" className="govt-card p-4 hover:border-blue-500 transition-all flex items-center gap-3 border-l-4 border-l-[#ff9933]">
-          <BookOpen className="w-6 h-6 text-[#0f2e5a] shrink-0" />
-          <div>
-            <p className="font-bold text-[#0f2e5a]">{t.schemeGuidelines}</p>
-            <p className="text-[10px] text-slate-500">NFST / NOS Rules</p>
-          </div>
-        </a>
-        <Link href="/applicant/dashboard" className="govt-card p-4 hover:border-blue-500 transition-all flex items-center gap-3 border-l-4 border-l-slate-400">
-          <FileSpreadsheet className="w-6 h-6 text-amber-600 shrink-0" />
-          <div>
-            <p className="font-bold text-[#0f2e5a]">{t.checkStatus}</p>
-            <p className="text-[10px] text-slate-500">Track Application No</p>
-          </div>
-        </Link>
-        <Link href="/admin/verification" className="govt-card p-4 hover:border-blue-500 transition-all flex items-center gap-3 border-l-4 border-l-[#138808]">
-          <Building2 className="w-6 h-6 text-emerald-700 shrink-0" />
-          <div>
-            <p className="font-bold text-[#0f2e5a]">{t.nodalOfficers}</p>
-            <p className="text-[10px] text-slate-500">State & District Contacts</p>
-          </div>
-        </Link>
-        <div className="govt-card p-4 flex items-center gap-3 border-l-4 border-l-[#0f2e5a]">
-          <HelpCircle className="w-6 h-6 text-indigo-700 shrink-0" />
-          <div>
-            <p className="font-bold text-[#0f2e5a]">{t.helpline}</p>
-            <p className="text-[10px] text-slate-500">Toll Free: 1800-11-0001</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Unified Single-Window Innovation Highlight */}
-      <section className="govt-card p-6 bg-gradient-to-r from-[#0f2e5a] to-[#1a365d] text-white space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-700/60 pb-3">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-amber-400" />
-            <h2 className="text-sm sm:text-base font-extrabold uppercase tracking-wide text-amber-300">
-              Why UnnatiSetu? Eliminating Portal Fragmentation
-            </h2>
-          </div>
-          <span className="text-[10px] bg-amber-500/20 text-amber-300 font-extrabold px-3 py-1 rounded border border-amber-400/30">
-            One-Nation One-Tribal-Portal Initiative
+          <span className="text-[10px] bg-gradient-to-r from-[#ea580c] via-amber-500 to-[#ea580c] text-white font-black px-3 py-0.5 rounded shadow-sm uppercase tracking-wider">
+            DBT TRIBAL PORTAL (dbttribal.gov.in)
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-          {/* Legacy Fragmented Problem */}
-          <div className="bg-slate-900/60 p-4 rounded border border-rose-500/30 space-y-2">
-            <div className="flex items-center gap-2 text-rose-400 font-bold uppercase text-[11px]">
-              <span className="w-2 h-2 rounded-full bg-rose-500"></span>
-              <span>The Problem: Legacy Fragmented Portals</span>
-            </div>
-            <p className="text-slate-300 leading-relaxed text-[11px]">
-              Previously, ST students had to navigate 5 separate portals (<code className="text-rose-300">tribal.nic.in</code>, <code className="text-rose-300">dbttribal.gov.in</code>, NSP 2.0, State portals, and Overseas portal), requiring multiple logins, re-uploading documents, and facing high rejection rates due to formatting errors.
-            </p>
-          </div>
+        <div className="tricolor-ribbon"></div>
 
-          {/* UnnatiSetu Unified Solution */}
-          <div className="bg-slate-900/60 p-4 rounded border border-emerald-500/40 space-y-2">
-            <div className="flex items-center gap-2 text-emerald-400 font-bold uppercase text-[11px]">
-              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-              <span>The Solution: UnnatiSetu Single Window</span>
+        <div className="p-6 sm:p-10 bg-gradient-to-br from-[#0b1d3a] via-[#0f2e5a] to-[#1e3a8a] text-white relative">
+          <div className="max-w-3xl space-y-4 relative z-10">
+            <div className="flex items-center gap-3">
+              <AshokaEmblemLogo className="w-10 h-14 shrink-0" />
+              <div>
+                <span className="text-xs font-bold text-amber-300 uppercase tracking-wider block">
+                  Direct Benefit Transfer (DBT) Portal • tribal.nic.in
+                </span>
+                <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-snug font-serif">
+                  Scholarship & Fellowship Schemes Directory
+                </h1>
+              </div>
             </div>
-            <p className="text-slate-300 leading-relaxed text-[11px]">
-              UnnatiSetu unifies <strong>all 5 MoTA Schemes</strong> (Pre-Matric, Post-Matric, Top Class, NFST, NOS) into <strong>ONE single window</strong>. One DigiLocker login auto-evaluates eligibility across all schemes, eliminates duplicate applications, and speeds up scrutiny from months to 7 days.
+
+            <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-medium">
+              Official single-window portal of the Ministry of Tribal Affairs empowering over 30 lakh Scheduled Tribe (ST) students across India with direct financial support under 5 flagship national schemes.
             </p>
+
+            <div className="flex flex-wrap gap-3 pt-2">
+              <button
+                onClick={() => handleApplyClick('scheme_bvobc')}
+                className="px-6 py-2.5 rounded bg-gradient-to-r from-[#ea580c] via-amber-500 to-[#ea580c] hover:brightness-110 text-white font-extrabold text-xs shadow-lg transition-all flex items-center gap-2 border border-amber-300"
+              >
+                <FileCheck className="w-4 h-4 text-white" />
+                Apply for ST Scholarship
+                <ArrowRight className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => {
+                  setAuthMode('LOGIN');
+                  setIsAuthModalOpen(true);
+                }}
+                className="px-6 py-2.5 rounded bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs border border-white/30 backdrop-blur-sm transition-all flex items-center gap-2"
+              >
+                <LogIn className="w-4 h-4 text-amber-300" />
+                Applicant Login / Sign Up
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Live Metrics Counter with Tricolor Borders */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-5 bg-gradient-to-r from-orange-50/50 via-white to-emerald-50/50 border-t border-slate-300 text-xs">
+          <div className="p-3 bg-white rounded border border-orange-200 border-l-4 border-l-[#ea580c] shadow-sm">
+            <span className="text-slate-500 font-bold text-[10px] uppercase block">Official Schemes Enrolled</span>
+            <span className="text-lg font-black text-[#ea580c]">5 Flagship Schemes</span>
+          </div>
+          <div className="p-3 bg-white rounded border border-amber-200 border-l-4 border-l-amber-500 shadow-sm">
+            <span className="text-slate-500 font-bold text-[10px] uppercase block">Annual Beneficiary Reach</span>
+            <span className="text-lg font-black text-amber-700">30+ Lakh Students</span>
+          </div>
+          <div className="p-3 bg-white rounded border border-emerald-200 border-l-4 border-l-[#16a34a] shadow-sm">
+            <span className="text-slate-500 font-bold text-[10px] uppercase block">Fund Mode</span>
+            <span className="text-lg font-black text-[#16a34a]">DBT (Aadhaar Bridge)</span>
+          </div>
+          <div className="p-3 bg-white rounded border border-indigo-200 border-l-4 border-l-[#0f2e5a] shadow-sm">
+            <span className="text-slate-500 font-bold text-[10px] uppercase block">Monitoring Agency</span>
+            <span className="text-lg font-black text-[#0f2e5a]">MoTA & NIC</span>
           </div>
         </div>
       </section>
 
-      <section id="schemes" className="space-y-4">
-        <div className="govt-card-header flex items-center justify-between rounded-t-lg">
-          <div className="flex items-center gap-2">
-            <BookOpen className="w-4 h-4 text-amber-400" />
-            <h2 className="text-sm font-extrabold uppercase tracking-wider">{t.activeSchemes} (dbttribal.gov.in & tribal.nic.in)</h2>
+      {/* 2. Official 5 Schemes Dataset Section (dbttribal.gov.in & tribal.nic.in) */}
+      <section id="schemes" className="space-y-4 pt-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-[#ea580c] pb-2">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#ea580c]"></span>
+              <span className="text-xs font-black text-[#ea580c] uppercase tracking-wider">OFFICIAL NATIONAL SCHEMES</span>
+            </div>
+            <h2 className="text-xl font-extrabold text-[#0f2e5a] font-serif">
+              Ministry of Tribal Affairs Schemes Directory ({filteredSchemes.length})
+            </h2>
+            <p className="text-xs text-slate-500">Directly integrated from dbttribal.gov.in/AllScheme.aspx & tribal.nic.in/ScholarshiP.aspx</p>
           </div>
-          <span className="text-xs text-amber-300 font-bold">5 Active Official MoTA Schemes</span>
+
+          <div className="relative w-full sm:w-72">
+            <input
+              type="text"
+              placeholder="Search scheme name or code (e.g. BVOBC)..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-3 py-1.5 rounded border border-slate-300 text-xs text-slate-800 focus:outline-none focus:border-[#0f2e5a]"
+            />
+            <Search className="w-4 h-4 text-slate-400 absolute left-2.5 top-2" />
+          </div>
         </div>
-        <div className="tricolor-ribbon"></div>
 
         {loading ? (
-          <div className="p-8 text-center text-slate-500 font-bold">Loading scheme directory from Ministry database...</div>
+          <div className="p-8 text-center bg-white rounded border border-slate-300 text-xs font-semibold text-slate-500 animate-pulse">
+            Loading official schemes dataset...
+          </div>
+        ) : filteredSchemes.length === 0 ? (
+          <div className="p-8 text-center bg-white rounded border border-slate-300 text-xs text-slate-500">
+            No schemes found matching "{searchQuery}".
+          </div>
         ) : (
-          <div className="space-y-6">
-            {/* 1. Formal Government Table View (dbttribal.gov.in style) */}
-            <div className="govt-card overflow-x-auto">
-              <div className="p-3 bg-slate-100 border-b border-slate-300 flex items-center justify-between">
-                <span className="text-xs font-extrabold text-[#0f2e5a] uppercase">Official DBT Portal Schemes Directory</span>
-                <span className="text-[10px] text-slate-600 font-bold">Content Managed by Ministry of Tribal Affairs</span>
-              </div>
-              <table className="govt-table">
-                <thead>
-                  <tr>
-                    <th>Sl No.</th>
-                    <th>Official Scheme Name</th>
-                    <th>DBT Code</th>
-                    <th>Benefit Type</th>
-                    <th>Scheme Type</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {schemes.map((scheme, index) => (
-                    <tr key={scheme.id}>
-                      <td className="text-center font-bold">{index + 1}</td>
-                      <td>
-                        <strong className="text-[#0f2e5a]">{scheme.name}</strong>
-                        <p className="text-[10px] text-slate-500">{scheme.description}</p>
-                      </td>
-                      <td className="font-mono font-bold text-blue-900 text-center">{scheme.code}</td>
-                      <td className="text-center">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                          {scheme.code === 'AZKMI' ? 'In Others' : 'In Cash (DBT)'}
-                        </span>
-                      </td>
-                      <td className="text-center font-semibold text-[11px]">
-                        {scheme.code === 'BPVGK' || scheme.code === 'BVOBC' ? 'Centrally Sponsored' : 'Central Sector'}
-                      </td>
-                      <td className="text-center">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                          Active
-                        </span>
-                      </td>
-                      <td className="text-center">
-                        <Link
-                          href={`/applicant/apply/${scheme.id}`}
-                          className="px-3 py-1.5 rounded bg-[#0f2e5a] hover:bg-[#1e40af] text-white font-bold text-[11px] inline-flex items-center gap-1 shadow-sm"
-                        >
-                          {t.applyOnline}
-                          <ArrowRight className="w-3 h-3" />
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {filteredSchemes.map((scheme, index) => {
+              const schemeType = (scheme as any).schemeType || (scheme.portalType === 'FELLOWSHIP' ? 'Central Sector Scheme' : scheme.code === 'BPVGK' || scheme.code === 'BVOBC' ? 'Centrally Sponsored Scheme' : 'Central Sector Scheme');
+              const benefitType = (scheme as any).benefitType || (scheme.code === 'AZKMI' ? 'In Others' : 'In Cash');
 
-            {/* 2. Detailed Scheme Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {schemes.map((scheme) => (
-                <div key={scheme.id} className="govt-card p-6 flex flex-col justify-between space-y-4 border-l-4 border-l-[#0f2e5a]">
+              return (
+                <div key={scheme.id || index} className="govt-card p-5 bg-white border border-slate-300 space-y-4 hover:shadow-md transition-all flex flex-col justify-between">
                   <div className="space-y-3">
-                    <div className="flex items-start justify-between gap-3 border-b border-slate-200 pb-3">
+                    <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-2">
                       <div>
-                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-[#0f2e5a] text-white font-mono">
-                          CODE: {scheme.code}
-                        </span>
-                        <h3 className="text-base font-extrabold text-[#0f2e5a] mt-1">{scheme.name}</h3>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] font-black uppercase tracking-wider text-amber-900 bg-amber-100 px-2.5 py-0.5 rounded border border-amber-300">
+                            Scheme Code: {scheme.code}
+                          </span>
+                          <span className="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                            Sl No. {index + 1}
+                          </span>
+                        </div>
+                        <h3 className="text-base font-extrabold text-[#0f2e5a] mt-2 font-serif leading-snug">
+                          {scheme.name}
+                        </h3>
                       </div>
-                      <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded border border-emerald-300 shrink-0">
-                        AY 2026-27 Open
+                      <span className="text-[10px] font-extrabold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded border border-emerald-300 shrink-0">
+                        Active Scheme
                       </span>
                     </div>
 
-                    <p className="text-xs text-slate-700 leading-relaxed font-medium">
+                    <p className="text-xs text-slate-600 leading-relaxed">
                       {scheme.description}
                     </p>
 
-                    <div className="bg-slate-50 p-3 rounded border border-slate-200 text-xs space-y-1">
-                      <p className="text-[11px] text-slate-700"><strong>Allocation Pool:</strong> ₹{(scheme.budgetAllocation / 10000000).toFixed(1)} Crore</p>
-                      <p className="text-[11px] text-slate-700"><strong>Sanctioned Seats:</strong> {scheme.totalSeats} Seats</p>
+                    <div className="grid grid-cols-2 gap-2 text-[11px] bg-slate-50 p-3 rounded border border-slate-200">
+                      <div>
+                        <span className="text-slate-500 font-bold block text-[10px] uppercase">Scheme Type</span>
+                        <span className="font-extrabold text-[#0f2e5a]">{schemeType}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 font-bold block text-[10px] uppercase">Benefit Type</span>
+                        <span className="font-extrabold text-amber-800">{benefitType}</span>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="pt-3 border-t border-slate-200 flex items-center justify-between gap-4">
-                    <span className="text-[11px] text-slate-500 font-medium">
-                      Closing Date: <strong>{new Date(scheme.applicationWindowEnd).toLocaleDateString()}</strong>
-                    </span>
-                    <Link
-                      href={`/applicant/apply/${scheme.id}`}
-                      className="px-4 py-2 rounded bg-[#0f2e5a] hover:bg-[#1a365d] text-white font-bold text-xs transition-all flex items-center gap-1.5 shadow"
+                  <div className="flex items-center justify-between pt-3 border-t border-slate-200 text-xs font-bold mt-2">
+                    <button
+                      onClick={() => handleApplyClick(scheme.id)}
+                      className="px-4 py-2 rounded bg-[#0f2e5a] hover:bg-[#1e40af] text-white flex items-center gap-1.5 transition-all text-xs shadow-sm"
                     >
-                      {t.applyOnline}
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
+                      <FileCheck className="w-3.5 h-3.5 text-amber-400" /> Apply Online
+                    </button>
+
+                    <a
+                      href={`https://tribal.nic.in/ScholarshiP.aspx`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-slate-700 hover:text-[#0f2e5a] text-[11px] flex items-center gap-1 underline"
+                    >
+                      <Download className="w-3.5 h-3.5 text-slate-500" /> Official Guidelines
+                    </a>
                   </div>
                 </div>
-              ))}
-            </div>
+              );
+            })}
           </div>
         )}
       </section>
+
+      {/* 3. Applicant Authentication Modal (Login / Sign Up Option for Scholarship Applicants) */}
+      {isAuthModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="govt-card w-full max-w-lg rounded-lg bg-white overflow-hidden shadow-2xl border-2 border-[#0f2e5a] animate-in fade-in zoom-in duration-200">
+            {/* Header */}
+            <div className="govt-card-header flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider">
+                <Lock className="w-4 h-4 text-amber-400" />
+                <span>APPLICANT AUTHENTICATION PORTAL</span>
+              </div>
+              <button
+                onClick={() => setIsAuthModalOpen(false)}
+                className="text-white hover:text-amber-300 p-1 rounded"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="tricolor-ribbon"></div>
+
+            <div className="p-6 space-y-4">
+              <div className="text-center space-y-1 border-b border-slate-200 pb-3">
+                <span className="text-[11px] font-extrabold text-[#0f2e5a] uppercase tracking-wider">
+                  Ministry of Tribal Affairs • Govt of India
+                </span>
+                <h3 className="text-lg font-extrabold text-[#0f2e5a]">
+                  {authMode === 'LOGIN' ? 'ST Applicant Login' : 'New ST Student Registration'}
+                </h3>
+                <p className="text-xs text-slate-500">
+                  {authMode === 'LOGIN'
+                    ? 'Log in with your email & password to apply for scholarship'
+                    : 'Register as a new ST student applicant to proceed'}
+                </p>
+              </div>
+
+              {/* Sub-Tabs: Login vs Sign Up */}
+              <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded text-xs font-bold">
+                <button
+                  type="button"
+                  onClick={() => setAuthMode('LOGIN')}
+                  className={`py-2 rounded transition-all flex items-center justify-center gap-1.5 ${
+                    authMode === 'LOGIN' ? 'bg-[#0f2e5a] text-white shadow-sm' : 'text-slate-700 hover:bg-slate-200'
+                  }`}
+                >
+                  <LogIn className="w-4 h-4" /> Log In
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAuthMode('SIGNUP')}
+                  className={`py-2 rounded transition-all flex items-center justify-center gap-1.5 ${
+                    authMode === 'SIGNUP' ? 'bg-[#0f2e5a] text-white shadow-sm' : 'text-slate-700 hover:bg-slate-200'
+                  }`}
+                >
+                  <UserPlus className="w-4 h-4" /> Sign Up
+                </button>
+              </div>
+
+              {/* Error Message Display */}
+              {authError && (
+                <div className="p-3 rounded bg-red-50 border border-red-200 text-red-800 text-xs flex items-center gap-2 font-medium">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                  <span>{authError}</span>
+                </div>
+              )}
+
+              {/* Quick One-Click Demo Login Button for Testing */}
+              <button
+                type="button"
+                onClick={handleDemoLogin}
+                disabled={authLoading}
+                className="w-full py-2 px-3 rounded bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-300 font-extrabold text-xs flex items-center justify-center gap-2 transition-all shadow-sm"
+              >
+                <ShieldCheck className="w-4 h-4 text-amber-700" />
+                <span>One-Click Demo ST Applicant Login</span>
+              </button>
+
+              <div className="flex items-center gap-2 text-slate-400 text-[10px] uppercase font-bold my-2">
+                <div className="flex-1 h-px bg-slate-200"></div>
+                <span>OR ENTER DETAILS</span>
+                <div className="flex-1 h-px bg-slate-200"></div>
+              </div>
+
+              {/* Form Input Fields */}
+              <form onSubmit={handleAuthSubmit} className="space-y-3 text-xs">
+                {authMode === 'SIGNUP' && (
+                  <div>
+                    <label className="block text-slate-700 font-bold mb-1">Full Name (As per Aadhaar/Certificate)</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Ramesh Hansda"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className="govt-input"
+                    />
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-slate-700 font-bold mb-1">Email Address</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="student@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="govt-input"
+                  />
+                </div>
+
+                {authMode === 'SIGNUP' && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-slate-700 font-bold mb-1">Mobile Number</label>
+                      <input
+                        type="tel"
+                        required
+                        placeholder="9876543210"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        className="govt-input"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-slate-700 font-bold mb-1">State of Domicile</label>
+                      <select
+                        value={state}
+                        onChange={(e) => setState(e.target.value)}
+                        className="govt-input"
+                      >
+                        <option value="Jharkhand">Jharkhand</option>
+                        <option value="Odisha">Odisha</option>
+                        <option value="Chhattisgarh">Chhattisgarh</option>
+                        <option value="Madhya Pradesh">Madhya Pradesh</option>
+                        <option value="Rajasthan">Rajasthan</option>
+                        <option value="Assam">Assam</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+
+                {authMode === 'SIGNUP' && (
+                  <div>
+                    <label className="block text-slate-700 font-bold mb-1">Aadhaar Number (12 Digits)</label>
+                    <input
+                      type="text"
+                      required
+                      maxLength={12}
+                      placeholder="123456789012"
+                      value={aadhaarNumber}
+                      onChange={(e) => setAadhaarNumber(e.target.value)}
+                      className="govt-input font-mono"
+                    />
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-slate-700 font-bold mb-1">Password</label>
+                  <input
+                    type="password"
+                    required
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="govt-input"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={authLoading}
+                  className="w-full py-2.5 rounded bg-[#0f2e5a] hover:bg-[#1e40af] text-white font-extrabold text-xs transition-all shadow-md mt-2 flex items-center justify-center gap-2"
+                >
+                  {authLoading ? (
+                    'Processing Authentication...'
+                  ) : authMode === 'LOGIN' ? (
+                    <>
+                      <LogIn className="w-4 h-4 text-amber-400" /> Log In & Continue to Application
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="w-4 h-4 text-amber-400" /> Create Account & Apply
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
+}
+
+// Simple client-side router helper fallback
+function Router() {
+  const router = useRouter();
+  return router;
 }

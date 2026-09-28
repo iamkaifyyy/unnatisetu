@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../../lib/api';
 import { Scheme } from '../../../types';
+import ProtectedRoute from '../../../components/ProtectedRoute';
 import {
   Sliders,
   Plus,
@@ -142,7 +143,8 @@ export default function SchemeConfigBuilderPage() {
   }
 
   return (
-    <div className="space-y-6 py-2">
+    <ProtectedRoute allowedRoles={['STATE_ADMIN', 'MINISTRY_ADMIN']}>
+      <div className="space-y-6 py-2">
       {/* Header Banner */}
       <div className="govt-card overflow-hidden">
         <div className="govt-card-header flex items-center justify-between">
@@ -401,6 +403,7 @@ export default function SchemeConfigBuilderPage() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </ProtectedRoute>
   );
 }

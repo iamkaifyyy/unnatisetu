@@ -1,9 +1,9 @@
 import { Router, Response } from 'express';
 import { prisma } from '../services/db.js';
 import { AuthRequest, authenticateToken } from '../middleware/auth.js';
-import { EligibilityEngine } from '../services/eligibilityEngine.ts';
-import { AuditLogger } from '../services/auditLogger.ts';
-import { PDFService } from '../services/pdfService.ts';
+import { EligibilityEngine } from '../services/eligibilityEngine.js';
+import { AuditLogger } from '../services/auditLogger.js';
+import { PDFService } from '../services/pdfService.js';
 
 const router = Router();
 

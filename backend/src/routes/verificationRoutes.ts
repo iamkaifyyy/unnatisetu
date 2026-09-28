@@ -1,8 +1,10 @@
 import { Router, Response } from 'express';
 import { prisma } from '../services/db.js';
 import { AuthRequest, authenticateToken, requireRoles } from '../middleware/auth.js';
-import { AuditLogger } from '../services/auditLogger.ts';
-import { ApplicationStatus, RiskLevel } from '@prisma/client';
+import { AuditLogger } from '../services/auditLogger.js';
+
+export type ApplicationStatus = string;
+export type RiskLevel = string;
 
 const router = Router();
 

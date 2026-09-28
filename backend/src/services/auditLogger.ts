@@ -1,5 +1,6 @@
 import { prisma } from './db.js';
-import { Role } from '@prisma/client';
+
+export type Role = 'APPLICANT' | 'VERIFIER' | 'STATE_ADMIN' | 'MINISTRY_ADMIN' | string;
 
 export interface LogAuditParams {
   applicationId: string;

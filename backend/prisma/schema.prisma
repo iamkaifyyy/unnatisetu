@@ -1,7 +1,7 @@
-// Prisma Schema for MoTA AI-Enabled Scholarship & Fellowship Management System (MongoDB Atlas Provider)
+// Prisma Schema for MoTA AI-Enabled Scholarship & Fellowship Management System
 
 datasource db {
-  provider = "mongodb"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -10,7 +10,7 @@ generator client {
 }
 
 model User {
-  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  id               String   @id @default(cuid())
   email            String   @unique
   password         String
   fullName         String
@@ -35,7 +35,7 @@ model User {
 }
 
 model Scheme {
-  id                     String         @id @default(auto()) @map("_id") @db.ObjectId
+  id                     String         @id @default(cuid())
   code                   String         @unique // e.g. "BPVGK", "BVOBC", "A023B", "ARG45", "AZKMI"
   name                   String
   description            String
@@ -55,8 +55,8 @@ model Scheme {
 }
 
 model SchemeConfig {
-  id                    String   @id @default(auto()) @map("_id") @db.ObjectId
-  schemeId              String   @db.ObjectId
+  id                    String   @id @default(cuid())
+  schemeId              String
   scheme                Scheme   @relation(fields: [schemeId], references: [id], onDelete: Cascade)
   version               Int      @default(1)
   effectiveFrom         DateTime @default(now())
@@ -73,11 +73,11 @@ model SchemeConfig {
 }
 
 model Application {
-  id                  String            @id @default(auto()) @map("_id") @db.ObjectId
+  id                  String            @id @default(cuid())
   applicationNo       String            @unique
-  userId              String            @db.ObjectId
+  userId              String
   user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  schemeId            String            @db.ObjectId
+  schemeId            String
   scheme              Scheme            @relation(fields: [schemeId], references: [id], onDelete: Cascade)
   schemeConfigVersion Int               @default(1)
 
@@ -87,7 +87,7 @@ model Application {
 
   formDataJson        String            // JSON payload containing form fields
   submittedAt         DateTime?
-  currentAssigneeId   String?           @db.ObjectId
+  currentAssigneeId   String?
   currentAssignee     User?             @relation("AssigneeApps", fields: [currentAssigneeId], references: [id])
 
   createdAt           DateTime          @default(now())
@@ -100,8 +100,8 @@ model Application {
 }
 
 model Document {
-  id                 String      @id @default(auto()) @map("_id") @db.ObjectId
-  applicationId      String      @db.ObjectId
+  id                 String      @id @default(cuid())
+  applicationId      String
   application        Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
   type               String      // CASTE_CERT, INCOME_CERT, MARK_SHEET, ADMISSION_LETTER, PASSPORT
   fileUrl            String
@@ -118,10 +118,10 @@ model Document {
 }
 
 model AuditLog {
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
-  applicationId String      @db.ObjectId
+  id            String      @id @default(cuid())
+  applicationId String
   application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  actorId       String      @db.ObjectId
+  actorId       String
   actor         User        @relation("ActorLogs", fields: [actorId], references: [id])
   actorRole     String      // APPLICANT, VERIFIER, STATE_ADMIN, MINISTRY_ADMIN
   action        String      // e.g., "SUBMITTED", "APPROVED", "RAISED_DEFICIENCY", "OVERRODE_RANK"
@@ -133,10 +133,10 @@ model AuditLog {
 }
 
 model DeficiencyNotice {
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
-  applicationId String      @db.ObjectId
+  id            String      @id @default(cuid())
+  applicationId String
   application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  raisedById    String      @db.ObjectId
+  raisedById    String
   raisedBy      User        @relation("RaisedDeficiencies", fields: [raisedById], references: [id])
   reason        String
   category      String      @default("DOCUMENT_MISMATCH") // DOCUMENT_MISMATCH, BLURRY_FILE, EXPIRED_CERT, INCOMPLETE_FORM
@@ -148,8 +148,8 @@ model DeficiencyNotice {
 }
 
 model Notification {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @db.ObjectId
+  id        String   @id @default(cuid())
+  userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   type      String   // DEFICIENCY_RAISED, STATUS_UPDATE, MERIT_SELECTION
   title     String
@@ -160,10 +160,10 @@ model Notification {
 }
 
 model MeritEntry {
-  id                 String      @id @default(auto()) @map("_id") @db.ObjectId
-  applicationId      String      @unique @db.ObjectId
+  id                 String      @id @default(cuid())
+  applicationId      String      @unique
   application        Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  schemeId           String      @db.ObjectId
+  schemeId           String
   scheme             Scheme      @relation(fields: [schemeId], references: [id], onDelete: Cascade)
 
   computedScore      Float       // Score calculated by formula
@@ -173,7 +173,7 @@ model MeritEntry {
   state              String
   isOverridden       Boolean     @default(false)
   overrideReason     String?
-  overriddenById     String?     @db.ObjectId
+  overriddenById     String?
   overriddenBy       User?       @relation("OverriddenBy", fields: [overriddenById], references: [id])
   publishedAt        DateTime?
   createdAt          DateTime    @default(now())

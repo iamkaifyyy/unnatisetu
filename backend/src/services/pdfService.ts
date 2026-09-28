@@ -61,7 +61,7 @@ export class PDFService {
         });
 
         doc.moveDown(2);
-        doc.fillColor('#047857').fontSize(11).text('✔ Digitally verified by MoTA Document Intelligence Engine', { align: 'center' });
+        doc.fillColor('#047857').fontSize(11).text('Digitally verified by Ministry of Tribal Affairs (MoTA)', { align: 'center' });
         doc.moveDown(1);
         doc.fillColor('#94a3b8').fontSize(9).text('Note: This is a system-generated document. For official queries, reference your Application No.', { align: 'center' });
 

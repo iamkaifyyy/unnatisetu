@@ -1,43 +1,42 @@
 # AI-Enabled Scholarship & Fellowship Management System
-### Ministry of Tribal Affairs (India) — SIH 2026 Prototype
+### Ministry of Tribal Affairs, Government of India
 
 ---
 
-## 🏛️ Executive Pitch & SIH Differentiators
+## System Overview & Key Capabilities
 
-1. **Configurable, Not Hardcoded (Scheme-Agnostic Engine)**:
-   - Eligibility rules, required document checklists, and scoring weightage formulas are **NOT hardcoded** in application logic.
-   - They are defined through a **No-Code Builder UI** and saved as versioned records in `SchemeConfig`.
-   - Scaling from **NFST** (National Fellowship for ST Students) to **NOS** (National Overseas Scholarship) or any future scheme is purely a configuration task.
+1. **Configurable Scheme Engine**:
+   - Eligibility criteria, required document checklists, and scoring formulas are defined through a configuration interface and stored in `SchemeConfig`.
+   - Adding or updating schemes such as NFST or NOS requires no code changes.
 
-2. **AI Assists, Humans Decide**:
-   - The **Document Intelligence OCR Microservice** parses uploaded certificates, extracts fields, and flags mismatches (e.g., income mismatch or name spelling discrepancy).
-   - The **Eligibility Rules Engine** evaluates applicant data deterministically (100% explainable, non-black-box).
-   - The **Merit Scoring Engine** normalizes post-graduation marks and ranks candidates.
-   - **Mandatory Human Oversight**: Any manual rank override by an officer requires a **mandatory justification logged to the audit trail** before final selection lock.
+2. **AI Assistance with Human Oversight**:
+   - **Document Intelligence OCR**: Scans uploaded certificates, extracts text fields, and highlights mismatches against applicant form data.
+   - **Eligibility Engine**: Evaluates applicant data against active scheme criteria deterministically.
+   - **Merit Scoring Engine**: Computes normalized applicant scores and generates ranked lists.
+   - **Audited Human Decisiveness**: Any manual rank adjustment requires an officer to record a clear justification, which is logged to the audit system.
 
-3. **Applicant-Side Instant OCR Feedback**:
-   - Reduces rejection cycles by detecting blurriness, missing signatures, or field mismatches *before* final submission.
+3. **Instant OCR Validation for Applicants**:
+   - Highlights document quality issues, missing details, or mismatched data prior to final submission to minimize rework cycles.
 
-4. **Tamper-Proof Auditability**:
-   - Every action (submission, officer scrutiny, deficiency notice, rank override) writes to a central `AuditLog` for RTI & CAG audit compliance.
+4. **Audit Compliance**:
+   - All major actions (submissions, officer reviews, deficiency notices, and rank adjustments) write to a central `AuditLog` for verification and transparency.
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
-| Layer | Technology |
+| Component | Technology |
 |---|---|
-| Frontend Portal | Next.js 14 (App Router), TypeScript, Tailwind CSS, Lucide Icons, Recharts |
+| Frontend | Next.js 14 (App Router), TypeScript, Tailwind CSS, Lucide Icons, Recharts |
 | Backend API | Node.js, Express, TypeScript, Socket.io |
 | Database & ORM | SQLite / PostgreSQL via Prisma ORM |
-| Document AI / OCR | Tesseract.js & Pattern Matching Microservice |
-| PDF Engine | PDFKit (server-side acknowledgment slips & selection letters) |
+| Document OCR | Tesseract.js & Field Matching Engine |
+| PDF Generator | PDFKit (acknowledgment slips & selection letters) |
 | Containerization | Docker Compose |
 
 ---
 
-## 🚀 Quick Setup & Run Instructions
+## Setup & Execution
 
 ### 1. Backend Setup
 ```bash
@@ -59,21 +58,21 @@ npm run dev
 
 ---
 
-## 🔑 SIH Live Demo Credentials & Quick Switcher
+## Demo Credentials & Role Switcher
 
-The top navigation bar includes a **1-Click Live Demo Role Switcher**:
+The top navigation bar includes a role switcher with pre-configured accounts:
 
-- 🎓 **ST Applicant**: `amit.santhal@gmail.com` / `Password123!`
-- 🔍 **District Verification Officer**: `verifier.ranchi@mota.gov.in` / `Password123!`
-- 🏛️ **State Nodal Officer (Jharkhand)**: `state.jharkhand@mota.gov.in` / `Password123!`
-- 👑 **Ministry Super Admin**: `admin@mota.gov.in` / `Password123!`
+- **ST Applicant**: `amit.santhal@gmail.com` / `Password123!`
+- **District Verification Officer**: `verifier.ranchi@mota.gov.in` / `Password123!`
+- **State Nodal Officer (Jharkhand)**: `state.jharkhand@mota.gov.in` / `Password123!`
+- **Ministry Super Admin**: `admin@mota.gov.in` / `Password123!`
 
 ---
 
-## 📊 End-to-End Demo Flow for Judges
+## End-to-End Workflow
 
-1. **Scheme Discovery & Application**: Log in as ST Applicant, select **NFST**, fill dynamic form, upload document for **OCR Scan**, view pre-check results, and submit.
-2. **Officer Verification Queue**: Switch role to **District Verifier**, view side-by-side OCR diff, flag a deficiency notice or approve.
-3. **Deficiency Resolution**: Switch back to **ST Applicant**, view active deficiency notice and countdown timer, re-upload document, and resubmit.
-4. **Merit Scoring & Selection**: Switch role to **Ministry Super Admin**, calculate composite merit scores, test manual rank override with mandatory justification modal, and publish final selection list.
-5. **Analytics & Audit Logs**: View live conversion funnels, SLA turnaround metrics, rejection breakdown charts, geographic heatmaps, and tamper-proof audit trails.
+1. **Application Submission**: Log in as an ST Applicant, select a scheme, fill form fields, upload certificates for automated verification, review validation output, and submit.
+2. **Verification Queue**: Switch to District Verifier, review form data alongside extracted OCR content, and either approve or raise a deficiency.
+3. **Deficiency Resolution**: Switch back to ST Applicant to inspect deficiency remarks, re-upload documents, and resubmit.
+4. **Merit Calculation**: Switch to Ministry Super Admin, compute scores, apply manual rank adjustments with recorded rationale, and finalize the list.
+5. **Analytics & Audit**: Inspect pipeline status, turnaround times, rejection metrics, state distributions, and audit history.

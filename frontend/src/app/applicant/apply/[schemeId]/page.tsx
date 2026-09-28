@@ -9,6 +9,7 @@ import {
   Upload,
   CheckCircle2,
   AlertCircle,
+  AlertTriangle,
   Zap,
   ShieldCheck,
   ArrowRight,
@@ -437,8 +438,9 @@ export default function ApplyPage() {
                       </div>
 
                       {uploaded.mismatchFlags && uploaded.mismatchFlags.length > 0 && (
-                        <div className="p-2 bg-rose-50 border border-rose-300 text-rose-900 font-bold text-[11px]">
-                          ⚠️ {uploaded.mismatchFlags[0].description}
+                        <div className="p-2 bg-rose-50 border border-rose-300 text-rose-900 font-bold text-[11px] flex items-center gap-1.5">
+                          <AlertTriangle className="w-3.5 h-3.5 text-rose-700 shrink-0" />
+                          <span>{uploaded.mismatchFlags[0].description}</span>
                         </div>
                       )}
                     </div>
@@ -480,7 +482,19 @@ export default function ApplyPage() {
           {eligibilityEval && (
             <div className={`p-4 rounded border ${eligibilityEval.isEligible ? 'bg-emerald-50 border-emerald-300 text-emerald-900' : 'bg-amber-50 border-amber-300 text-amber-900'}`}>
               <div className="flex items-center justify-between font-extrabold text-sm mb-2">
-                <span>{eligibilityEval.isEligible ? '✔ Pre-Check Passed: Eligible for Scheme' : '⚠️ Eligibility Notice'}</span>
+                <span className="flex items-center gap-1.5">
+                  {eligibilityEval.isEligible ? (
+                    <>
+                      <CheckCircle2 className="w-4 h-4 text-emerald-700" />
+                      <span>Pre-Check Passed: Eligible for Scheme</span>
+                    </>
+                  ) : (
+                    <>
+                      <AlertTriangle className="w-4 h-4 text-amber-700" />
+                      <span>Eligibility Notice</span>
+                    </>
+                  )}
+                </span>
                 <span>{eligibilityEval.passed} / {eligibilityEval.total} Norms Met</span>
               </div>
               <div className="space-y-1 text-xs">
